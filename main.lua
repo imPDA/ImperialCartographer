@@ -183,4 +183,4 @@ EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_ADD_ON_LOADED, function(_,
     addon:OnLoad()
 end)
 
-ImperialCartographerMain = addon
+-- ImperialCartographerMain = addon

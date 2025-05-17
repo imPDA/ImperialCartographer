@@ -4,9 +4,9 @@
 ## Author: @impPDA
 
 ## APIVersion: 101045
+## DependsOn: LibImplex>=2 LibAddonMenu-2.0>=38 Lib3D>=312
 
 ## SavedVariables: ImperialCartographerSV ImperialCartographerData
-## DependsOn: LibImplex LibAddonMenu-2.0 Lib3D
 
 logger.lua
 
