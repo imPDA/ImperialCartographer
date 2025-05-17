@@ -1,0 +1,18 @@
+## Title: Imperial Cartographer
+## Description: -_-
+## Version: 1
+## Author: @impPDA
+
+## APIVersion: 101045
+
+## SavedVariables: ImperialCartographerSV ImperialCartographerData
+## DependsOn: LibImplex LibAddonMenu-2.0 Lib3D
+
+logger.lua
+
+controls.xml
+poimarker.lua
+
+defaultdata.lua
+
+main.lua
