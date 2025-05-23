@@ -1,18 +1,33 @@
 ## Title: Imperial Cartographer
-## Description: -_-
-## Version: 1
+## Description: ^_^
+## Version: 2
 ## Author: @impPDA
 
 ## APIVersion: 101045
-## DependsOn: LibImplex>=2 LibAddonMenu-2.0>=38 Lib3D>=312
+## DependsOn: LibImplex>=4 LibAddonMenu-2.0>=39 Lib3D>=312
 
-## SavedVariables: ImperialCartographerSV ImperialCartographerData
+## SavedVariables: ImperialCartographerSV ImperialCartographerData ImperialCartographerExport
 
 logger.lua
 
-controls.xml
-poimarker.lua
-
-defaultdata.lua
-
 main.lua
+
+poi/defaultdata.lua
+poi/database.lua
+
+poi/discovered/templates.xml
+poi/discovered/main.lua
+poi/discovered/controls.xml
+
+poi/updatepoint.lua
+; poi/clearpoints.lua
+
+poi/controls.xml
+poi/markers.lua
+
+poi/bindings.lua
+poi/bindings.xml
+
+poi/waypoint.lua
+
+; poi/export.lua

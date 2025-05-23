@@ -6,12 +6,21 @@
             <Anchor point="TOP" relativePoint="BOTTOM" offsetY="-8" />
         </Label>
 
+        <TopLevelControl name="IMP_CART_Waypoint" tier="DT_LOW" layer="DL_BACKGROUND" hidden="true">
+            <Dimensions x="32" y="32" />
+            <Controls>
+                <Texture name="$(parent)Texture" textureFile="EsoUI/Art/MapPins/UI_Worldmap_pin_customDestination_white.dds">
+                    <AnchorFill />
+                </Texture>
+            </Controls>
+        </TopLevelControl>
+        
         <TopLevelControl name="ImperialCartographer_POILabel" hidden="true">
             <Controls>
                 <Label name="$(parent)POIName" font="ImperialCartographer_ZoFontWinH2" text="-">
                     <Anchor point="CENTER" />
                 </Label>
             </Controls>
-        </TopLevelControl>   
+        </TopLevelControl>
     </Controls>
 </GuiXml>

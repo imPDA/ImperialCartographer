@@ -1,0 +1,35 @@
+<GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
+    <Controls>
+        <TopLevelControl name="IMP_CART_DiscoveredPOIs" hidden="true">
+            <Dimensions x="400" y="900" />
+            <Anchor point="RIGHT" relativeTo="GuiRoot" offsetX="-100" />
+            <Controls>
+                <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="000000" centerColor="000000" />
+                <Control name="$(parent)Header">
+                    <Anchor point="TOPLEFT" />
+                    <Anchor point="BOTTOMRIGHT" offsetY="32" relativePoint="TOPRIGHT" />
+                    <Controls>
+                        <!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
+                        <Label name="$(parent)Label" font="ZoFontWinH4" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="Discovered POIs">
+                            <Anchor point="TOPLEFT" offsetY="-2" />
+                        </Label>
+                        <Label name="$(parent)TotalDiscoveredLabel" font="ZoFontWinH4" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="(total: -/-)">
+                            <Anchor point="LEFT" relativeTo="$(parent)Label" relativePoint="RIGHT" offsetX="4" />
+                        </Label>
+                    </Controls>
+                </Control>
+                <Control name="$(parent)ScrollableList" inherits="ZO_ScrollList">
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)Header" relativePoint="BOTTOMLEFT" />
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$(parent)" relativePoint="BOTTOMRIGHT" />
+                    <Controls>
+                        <!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="00FF00" /> -->
+                    </Controls>
+                </Control>
+            </Controls>
+
+            <OnInitialized>
+                IMP_CART_DiscoveredPOIs_OnInitialised(self)
+            </OnInitialized>
+        </TopLevelControl>
+    </Controls>
+</GuiXml>

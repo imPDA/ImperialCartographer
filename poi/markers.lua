@@ -162,7 +162,7 @@ local function POIMarkerOnMouseEnter(self)
     if not poiId then return end
 
     ImperialCartographer_POILabel:SetAnchor(BOTTOM, self, TOP)
-    ImperialCartographer_POILabel:GetNamedChild('POIName'):SetText(('[POI#%d] %s'):format(poiId, self:GetName()))
+    ImperialCartographer_POILabel:GetNamedChild('POIName'):SetText(('[POI#%d] %s\nx:%d y:%d z:%d'):format(poiId, self:GetName(), unpack(self.m_Marker.position)))
     ImperialCartographer_POILabel:SetHidden(false)
 end
 
@@ -206,7 +206,7 @@ end
 
 local updateVisibilityPOIMarker = visibleAt(500, 23500)
 local updateAlphaPOIMarker = changeAlphaWithDistance(500, 23500, 1, 0.2)
-local function POIMarker(poiId, position, texture, size, color, hideAfter_M)
+local function POIMarker(poiId, position, texture, size, color)
     local poiMarker = LibImplex.Marker.Marker2D(
         position,
         nil,
@@ -227,7 +227,7 @@ end
 
 local updateVisibilityUnknownPOIMarker = visibleAt(0, 300000)
 local updateAlphaUnknownPOIMarker = changeAlphaWithDistance(0, 100000, 1, 0.1)
-local function UnknownPOIMarker(poiId, position, texture, size, color, hideAfter_M)
+local function UnknownPOIMarker(poiId, position, texture, size, color)
     local poiMarker = LibImplex.Marker.Marker2D(
         position,
         nil,
@@ -247,9 +247,57 @@ local function UnknownPOIMarker(poiId, position, texture, size, color, hideAfter
     return poiMarker
 end
 
-ImperialCartographer = ImperialCartographer or {}
+local function addWaypointTexture(marker)
+    IMP_CART_Waypoint:SetAnchor(BOTTOM, marker.control, TOP)
+    IMP_CART_Waypoint:SetHidden(false)
+
+    local EM = LibImplex.EVENT_MANAGER
+    EM.RegisterForEvent('ImperialCartographerWaypoint', EM.EVENT_AFTER_UPDATE, function()
+        IMP_CART_Waypoint:SetHidden(marker.control:IsHidden())
+    end)
+end
+
+local function AlwaysVisiblePOIMarker(poiId, position, texture, size, color)
+    local poiMarker = LibImplex.Marker.Marker2D(
+        position,
+        nil,
+        texture,
+        {size, size},
+        color,
+        updateDistanceLabel,
+        checkReticleOver
+    )
+
+    addDistanceLabel(poiMarker)
+    addMouseOverHandler(poiMarker, poiId)
+    addWaypointTexture(poiMarker)
+
+    return poiMarker
+end
+
+local function AlwaysVisibleUnknownPOIMarker(poiId, position, texture, size, color)
+    local poiMarker = LibImplex.Marker.Marker2D(
+        position,
+        nil,
+        texture,
+        {size, size},
+        color,
+        updateDistanceLabel,
+        checkReticleOver,
+        updateY
+    )
+
+    addDistanceLabel(poiMarker)
+    addMouseOverHandler(poiMarker, poiId)
+    addWaypointTexture(poiMarker)
+
+    return poiMarker
+end
+
 ImperialCartographer.POIMarker = POIMarker
 ImperialCartographer.UnknownPOIMarker = UnknownPOIMarker
+ImperialCartographer.AlwaysVisiblePOIMarker = AlwaysVisiblePOIMarker
+ImperialCartographer.AlwaysVisibleUnknownPOIMarker = AlwaysVisibleUnknownPOIMarker
 
 ImperialCartographer.RegisterReticlerOverEvents = function()
     local EM = LibImplex.EVENT_MANAGER
@@ -258,6 +306,7 @@ ImperialCartographer.RegisterReticlerOverEvents = function()
     end)
     EM.RegisterForEvent('ImperialCartographerRticleOverMarker', EM.EVENT_AFTER_UPDATE, function()
         if RETICLE_OVER ~= PREVIOUS_RETICLE_OVER then
+            Log('Reticle over changed') 
             if RETICLE_OVER then
                 local poiId = RETICLE_OVER.poiId
                 if not poiId then return end
