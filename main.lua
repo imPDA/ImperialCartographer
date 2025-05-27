@@ -120,6 +120,11 @@ local function getCoordinatesViaLib3D(zoneIndex, i)
 end
 
 function addon:OnPlayerActivated(initial)
+    if Lib3D.currentZoneMeasurement == nil or Lib3D.currentZoneMeasurement.GlobalToWorld == nil then
+        zo_callLater(function() self:OnPlayerActivated(initial) end, 1000)
+        return
+    end
+
     for i = 1, #self.activeMarkers do
         self.activeMarkers[i]:Delete()
 	    self.activeMarkers[i] = nil
