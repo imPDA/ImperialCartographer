@@ -2,6 +2,9 @@ local SCROLL_LIST_CONTROL
 
 local IC = ImperialCartographer
 
+local CURRENT_ZONE_NAME_COLOR = {0, 1, 0}
+local DEFAULT_ZONE_NAME_COLOR = {1, 1, 1}
+
 local function CreateScrollListDataType(listControl)
     local function LayoutRow(rowControl, data, scrollList)
         local zoneIndex = data.zoneIndex
@@ -9,13 +12,19 @@ local function CreateScrollListDataType(listControl)
         local poiTotal = data.poiTotal
         local poiTotalV2 = GetNumPOIs(zoneIndex)
 
+        local characterZoneIndex = GetUnitZoneIndex('player')
+        local currentZone = characterZoneIndex == zoneIndex
+        local color = currentZone and CURRENT_ZONE_NAME_COLOR or DEFAULT_ZONE_NAME_COLOR
+
         GetControl(rowControl, 'Index'):SetText(zoneIndex)
+        GetControl(rowControl, 'Index'):SetColor(unpack(color))
         GetControl(rowControl, 'Name'):SetText(GetZoneNameByIndex(zoneIndex))
+        GetControl(rowControl, 'Name'):SetColor(unpack(color))
         GetControl(rowControl, 'Discovered'):SetText(('%d / %d (%d)'):format(poiDiscovered, poiTotal, poiTotalV2))
 
-        if poiDiscovered == poiTotal then
+        if poiDiscovered == poiTotal and poiTotal ~= 0 then
             GetControl(rowControl, 'Discovered'):SetColor(0, 1, 0)
-        elseif poiDiscovered >= poiTotal * 0.8 then
+        elseif poiDiscovered >= poiTotal * 0.8 and poiTotal ~= 0 then
             GetControl(rowControl, 'Discovered'):SetColor(1, 65/255, 0)
         else
             GetControl(rowControl, 'Discovered'):SetColor(1, 0, 0)
@@ -36,8 +45,13 @@ local function CreateScrollListDataType(listControl)
 
         if #missingPOIs > 0 then
             local tooltip = table.concat(missingPOIs, '\n')
-            rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, RIGHT, tooltip) end)
+            rowControl:SetHandler('OnMouseEnter', function()
+                ZO_Tooltips_ShowTextTooltip(rowControl, RIGHT, tooltip)
+            end)
             rowControl:SetHandler('OnMouseExit', function() ZO_Tooltips_HideTextTooltip() end)
+        else
+            rowControl:SetHandler('OnMouseEnter', nil)
+            rowControl:SetHandler('OnMouseExit', nil)
         end
     end
 
@@ -61,11 +75,17 @@ end
 
 local SUMMARY_TABLE = {}
 local function updateSummary()
-    ZO_ClearTable(SUMMARY_TABLE)
+    -- ZO_ClearTable(SUMMARY_TABLE)
+
+    for i = 1, GetNumZones() do
+        if not SUMMARY_TABLE[i] then SUMMARY_TABLE[i] = {} end
+        SUMMARY_TABLE[i][1] = 0
+        SUMMARY_TABLE[i][2] = 0
+    end
 
     for poiId, poiData in pairs(ImperialCartographer.DefaultData) do
         local zoneIndex, poiIndex = GetPOIIndices(poiId)
-        if not SUMMARY_TABLE[zoneIndex] then SUMMARY_TABLE[zoneIndex] = {0, 0} end
+        -- if not SUMMARY_TABLE[zoneIndex] then SUMMARY_TABLE[zoneIndex] = {0, 0} end
         SUMMARY_TABLE[zoneIndex][1] = SUMMARY_TABLE[zoneIndex][1] + (poiData[2] == true and 1 or 0)
         SUMMARY_TABLE[zoneIndex][2] = SUMMARY_TABLE[zoneIndex][2] + 1
     end
@@ -73,7 +93,7 @@ local function updateSummary()
     for poiId, poiData in pairs(ImperialCartographerData) do
         if not ImperialCartographer.DefaultData[poiId] then
             local zoneIndex, poiIndex = GetPOIIndices(poiId)
-            if not SUMMARY_TABLE[zoneIndex] then SUMMARY_TABLE[zoneIndex] = {0, 0} end
+            -- if not SUMMARY_TABLE[zoneIndex] then SUMMARY_TABLE[zoneIndex] = {0, 0} end
             SUMMARY_TABLE[zoneIndex][1] = SUMMARY_TABLE[zoneIndex][1] + (poiData[2] == true and 1 or 0)
             SUMMARY_TABLE[zoneIndex][2] = SUMMARY_TABLE[zoneIndex][2] + 1
         end
@@ -107,7 +127,9 @@ function IMP_CART_UpdateScrollListControl()
     ZO_ScrollList_Clear(scrollList)
 
     for zoneIndex, poiData in pairs(SUMMARY_TABLE) do
-        CreateAndAddDataEntry(zoneIndex, poiData)
+        if GetNumPOIs(zoneIndex) > 0 then
+            CreateAndAddDataEntry(zoneIndex, poiData)
+        end
     end
 
     table.sort(dataList, function(a, b) return a.data.zoneIndex < b.data.zoneIndex end)

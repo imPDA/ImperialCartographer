@@ -1,6 +1,6 @@
 ## Title: Imperial Cartographer
 ## Description: ^_^
-## Version: 2
+## Version: 3
 ## Author: @impPDA
 
 ## APIVersion: 101045
