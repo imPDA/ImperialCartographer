@@ -65,7 +65,7 @@ addon.ALWAYS_VISIBLE = ALWAYS_VISIBLE
 addon.ALWAYS_VISIBLE_NOT_ADDED = ALWAYS_VISIBLE_NOT_ADDED
 function addon:Place(poiId, type)
     -- Log('Placing marker for POI ID#%d, userdata: %s, default data: %s', poiId, tostring(self.userData[poiId] ~= nil), tostring(self.data[poiId] ~= nil))
-    local poiData = self.data[poiId] or self.userData[poiId]
+    local poiData = self.data[poiId]  -- or self.userData[poiId]
 
     if not poiData then return end
 
@@ -150,6 +150,7 @@ function addon:OnPlayerActivated(initial)
         local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, i)
 
         if poiId then
+            --[[
             if not (self.data[poiId] or self.userData[poiId]) then
                 -- self.userData[poiId] = {{getCoordinatesViaLib3D(zoneIndex, i)}}
                 local poiNX, poiNZ, pinType, texture = GetPOIMapInfo(zoneIndex, i)
@@ -161,16 +162,17 @@ function addon:OnPlayerActivated(initial)
                     Log('%d - POI (%s) can`t be placed, calculations failed', i, objectiveName)
                 end
             end
+            --]]
 
             -- TODO: refactor!!
-            if self.data[poiId] or self.userData[poiId] then
+            if self.data[poiId] then  -- or self.userData[poiId] then
                 local nextIndex = #self.activeMarkers+1
                 local newMarker = self:Place(poiId)
                 self.activeMarkers[nextIndex] = newMarker
                 self.markerIndexToPOIIdTable[nextIndex] = poiId
                 self.poiIdToMarkerIndex[poiId] = nextIndex
 
-                local visited = (self.data[poiId] and true) or (self.userData[poiId][2] or false)
+                local visited = (self.data[poiId] and true)  -- or (self.userData[poiId][2] or false)
 
                 Log('%d -%sPOI (%s, %d) placed', i, visited and ' ' or ' [x] ', objectiveName, poiId)
             end
@@ -179,14 +181,14 @@ function addon:OnPlayerActivated(initial)
         end
     end
 
-    IMP_CART_UpdateScrollListControl()
+    -- IMP_CART_UpdateScrollListControl()
 end
 
 function addon:OnLoad()
     ImperialCartographerData = ImperialCartographerData or {}
 
     addon.data = self.DefaultData
-    addon.userData = ImperialCartographerData
+    -- addon.userData = ImperialCartographerData
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function(_, initial) self:OnPlayerActivated(initial) end)
 

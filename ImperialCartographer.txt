@@ -1,5 +1,5 @@
 ## Title: Imperial Cartographer
-## Description: ^_^
+## Description: @_@
 ## Version: 4
 ## Author: @impPDA
 
@@ -17,9 +17,9 @@ poi/database.lua
 
 poi/calculations.lua
 
-poi/discovered/templates.xml
-poi/discovered/main.lua
-poi/discovered/controls.xml
+; poi/discovered/templates.xml
+; poi/discovered/main.lua
+; poi/discovered/controls.xml
 
 poi/updatepoint.lua
 ; poi/clearpoints.lua

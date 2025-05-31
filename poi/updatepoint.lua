@@ -44,5 +44,5 @@ end
 
 -- ----------------------------------------------------------------------------
 
-SLASH_COMMANDS['/impcartupdclosest'] = updatePoint
-IMP_CART_UpdatePoint = updatePoint
+-- SLASH_COMMANDS['/impcartupdclosest'] = updatePoint
+-- IMP_CART_UpdatePoint = updatePoint
