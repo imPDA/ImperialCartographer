@@ -16,6 +16,17 @@
                         <Label name="$(parent)TotalDiscoveredLabel" font="ZoFontWinH4" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="(total: -/-)">
                             <Anchor point="LEFT" relativeTo="$(parent)Label" relativePoint="RIGHT" offsetX="4" />
                         </Label>
+                        <!-- <Button name="$(parent)CloseButton">
+                            <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" offsetX="16" offsetY="-16" />
+                            <Dimensions x="42" y="42"/>
+                            <Textures 
+                                normal="/esoui/art/hud/radialicon_cancel_up.dds"
+                                mouseOver="/esoui/art/hud/radialicon_cancel_over.dds"
+                            />
+                            <OnClicked>
+                                IMP_CART_
+                            </OnClicked>
+                        </Button> -->
                     </Controls>
                 </Control>
                 <Control name="$(parent)ScrollableList" inherits="ZO_ScrollList">

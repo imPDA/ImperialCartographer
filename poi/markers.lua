@@ -252,9 +252,9 @@ local function addWaypointTexture(marker)
     IMP_CART_Waypoint:SetHidden(false)
 
     local EM = LibImplex.EVENT_MANAGER
-    EM.RegisterForEvent('ImperialCartographerWaypoint', EM.EVENT_AFTER_UPDATE, function()
+    pcall(EM.RegisterForEvent, 'ImperialCartographerWaypoint', EM.EVENT_AFTER_UPDATE, function()
         IMP_CART_Waypoint:SetHidden(marker.control:IsHidden())
-    end)
+    end)  -- TODO: refactor :D
 end
 
 local function AlwaysVisiblePOIMarker(poiId, position, texture, size, color)

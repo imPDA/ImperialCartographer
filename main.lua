@@ -49,6 +49,12 @@ local function getMarkerSizeByPinType(pinType)
     return 36
 end
 
+local specialZones = {
+    [1443] = true,
+    [1027] = true,
+    [1502] = true,
+}
+
 local NOT_ADDED = 1
 local DEFAULT = 2
 local ALWAYS_VISIBLE = 3
@@ -66,15 +72,16 @@ function addon:Place(poiId, type)
     local zoneIndex, i = GetPOIIndices(poiId)
     local poiNX, poiNZ, pinType, texture = GetPOIMapInfo(zoneIndex, i)
 
-    if poiId == 2549 then
-        Log('Placing marker for POI ID#%d, userdata: %s, default data: %s', poiId, tostring(self.userData[poiId] ~= nil), tostring(self.data[poiId] ~= nil))
-        Log('x:%d, y:%d, z:%d', unpack(poiData[1]))
-    end
-
     -- Log('[%d]: `%s` placed', poiId, GetPOIInfo(zoneIndex, i))
+    local zoneId = GetZoneId(zoneIndex)
+    local wX, wY, wZ
 
-    local rnX, rnZ = GetRawNormalizedWorldPosition(GetZoneId(zoneIndex), unpack(poiData[1]))
-    local wX, wY, wZ = LibGPS3:LocalToWorld(rnX, rnZ)
+    if not specialZones[zoneId] then
+        local rnX, rnZ = GetRawNormalizedWorldPosition(GetZoneId(zoneIndex), unpack(poiData[1]))
+        wX, wY, wZ = LibGPS3:LocalToWorld(rnX, rnZ)
+    else
+        wX, wY, wZ = unpack(poiData[1])
+    end
 
     if not type then
         if not poiData[2] then
@@ -102,6 +109,7 @@ function addon:Place(poiId, type)
     end
 end
 
+--[[
 local function getCoordinatesViaLib3D(zoneIndex, i)
     local poiNX, poiNZ, pinType, texture = GetPOIMapInfo(zoneIndex, i)
     local poiX, poiZ = Lib3D:LocalToWorld(poiNX, poiNZ)
@@ -118,6 +126,7 @@ local function getCoordinatesViaLib3D(zoneIndex, i)
     return poiX * 100, 14000, poiZ * 100
     -- return poiX * 100 + RENDER_SHIFT[1], 14000 + RENDER_SHIFT[2], poiZ * 100 + RENDER_SHIFT[3]
 end
+--]]
 
 function addon:OnPlayerActivated(initial)
     if Lib3D.currentZoneMeasurement == nil or Lib3D.currentZoneMeasurement.GlobalToWorld == nil then
@@ -138,25 +147,35 @@ function addon:OnPlayerActivated(initial)
 
     for i = 1, GetNumPOIs(zoneIndex) do
         local poiId = self.GetPOIId(zoneIndex, i)
+        local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, i)
 
         if poiId then
             if not (self.data[poiId] or self.userData[poiId]) then
-                self.userData[poiId] = {{getCoordinatesViaLib3D(zoneIndex, i)}}
+                -- self.userData[poiId] = {{getCoordinatesViaLib3D(zoneIndex, i)}}
+                local poiNX, poiNZ, pinType, texture = GetPOIMapInfo(zoneIndex, i)
+                local status, poiWX, poiWY, poiWZ = pcall(ImperialCartographer.Calculations.NormalizedToWorld, zoneIndex, poiNX, poiNZ)
+
+                if status then
+                    self.userData[poiId] = {{poiWX, poiWY, poiWZ}}
+                else
+                    Log('%d - POI (%s) can`t be placed, calculations failed', i, objectiveName)
+                end
             end
 
-            local nextIndex = #self.activeMarkers+1
-            local newMarker = self:Place(poiId)
-            self.activeMarkers[nextIndex] = newMarker
-            self.markerIndexToPOIIdTable[nextIndex] = poiId
-            self.poiIdToMarkerIndex[poiId] = nextIndex
+            -- TODO: refactor!!
+            if self.data[poiId] or self.userData[poiId] then
+                local nextIndex = #self.activeMarkers+1
+                local newMarker = self:Place(poiId)
+                self.activeMarkers[nextIndex] = newMarker
+                self.markerIndexToPOIIdTable[nextIndex] = poiId
+                self.poiIdToMarkerIndex[poiId] = nextIndex
 
-            local visited = (self.data[poiId] and true) or (self.userData[poiId][2] or false)
+                local visited = (self.data[poiId] and true) or (self.userData[poiId][2] or false)
 
-            local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, i)
-            Log('%d -%sPOI (%s) placed', i, visited and ' ' or ' [x] ', objectiveName)
+                Log('%d -%sPOI (%s, %d) placed', i, visited and ' ' or ' [x] ', objectiveName, poiId)
+            end
         else
-            local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, i)
-            Log('POI poiIndex %d (%s) is absent in databaase', i, objectiveName)
+            -- Log('%d - POI (%s) is absent in databaase', i, objectiveName)
         end
     end
 

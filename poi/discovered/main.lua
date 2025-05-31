@@ -1,4 +1,5 @@
 local SCROLL_LIST_CONTROL
+local DISCOVERED_POIS_CONTROL
 
 local IC = ImperialCartographer
 
@@ -112,8 +113,13 @@ end
 -- ----------------------------------------------------------------------------
 
 function IMP_CART_UpdateScrollListControl()
+    -- TODO: For version 5
+    -- if DISCOVERED_POIS_CONTROL:IsHidden() then
+    --     self.dirty = true
+    -- end
+
     local scrollList = SCROLL_LIST_CONTROL
-	local dataList = ZO_ScrollList_GetDataList(scrollList)
+    local dataList = ZO_ScrollList_GetDataList(scrollList)
 
     updateSummary()
 
@@ -139,4 +145,5 @@ end
 
 function IMP_CART_DiscoveredPOIs_OnInitialised(control)
     CreateScrollListDataType(control:GetNamedChild('ScrollableList'))
+    -- DISCOVERED_POIS_CONTROL = control
 end

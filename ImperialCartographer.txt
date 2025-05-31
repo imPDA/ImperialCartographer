@@ -1,6 +1,6 @@
 ## Title: Imperial Cartographer
 ## Description: ^_^
-## Version: 3
+## Version: 4
 ## Author: @impPDA
 
 ## APIVersion: 101045
@@ -14,6 +14,8 @@ main.lua
 
 poi/defaultdata.lua
 poi/database.lua
+
+poi/calculations.lua
 
 poi/discovered/templates.xml
 poi/discovered/main.lua
