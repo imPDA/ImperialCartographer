@@ -113,7 +113,7 @@ end
 -- ----------------------------------------------------------------------------
 
 function IMP_CART_UpdateScrollListControl()
-    -- TODO: For version 5
+    -- TODO: For version 6 (probably)
     -- if DISCOVERED_POIS_CONTROL:IsHidden() then
     --     self.dirty = true
     -- end

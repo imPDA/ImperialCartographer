@@ -4,12 +4,22 @@ local IC = ImperialCartographer
 
 -- ----------------------------------------------------------------------------
 
-local ALWAYS_VISIBLE_POIID
+local function addWaypointTexture(marker)
+    IMP_CART_Waypoint:SetAnchor(BOTTOM, marker.control, TOP)
+    IMP_CART_Waypoint:SetHidden(false)
 
-local function removeExistingWaypoint()
-    if not ALWAYS_VISIBLE_POIID then return end
+    local EM = LibImplex.EVENT_MANAGER
+    pcall(EM.RegisterForEvent, 'ImperialCartographerWaypoint', EM.EVENT_AFTER_UPDATE, function()
+        IMP_CART_Waypoint:SetHidden(marker.control:IsHidden())
+    end)  -- TODO: refactor :D
+end
 
-    local markerIndex = IC.poiIdToMarkerIndex[ALWAYS_VISIBLE_POIID]
+local WAYPOINT_MARKER
+
+local function removeExistingWaypointMarker()
+    if not WAYPOINT_MARKER then return end
+
+    local markerIndex = IC.poiIdToMarkerIndex[WAYPOINT_MARKER]
     if not markerIndex then return end
 
     IMP_CART_Waypoint:ClearAnchors()
@@ -20,9 +30,9 @@ local function removeExistingWaypoint()
 
     IC.activeMarkers[markerIndex].control:SetClampedToScreen(false)
     IC.activeMarkers[markerIndex]:Delete()
-    IC.activeMarkers[markerIndex] = IC:Place(ALWAYS_VISIBLE_POIID)
+    IC.activeMarkers[markerIndex] = IC:Place(WAYPOINT_MARKER)
 
-    ALWAYS_VISIBLE_POIID = nil
+    WAYPOINT_MARKER = nil
 end
 
 local function handleNewWaypoint(wpnX, wpnY)
@@ -50,16 +60,14 @@ local function handleNewWaypoint(wpnX, wpnY)
     local markerIndex = IC.poiIdToMarkerIndex[closestPOIId]
     if not markerIndex then return end
 
-    IC.activeMarkers[markerIndex]:Delete()
-    IC.activeMarkers[markerIndex] = IC:Place(closestPOIId, IC.ALWAYS_VISIBLE)
-    IC.activeMarkers[markerIndex].control:SetClampedToScreen(true)
-    IC.activeMarkers[markerIndex].control:SetClampedToScreenInsets(-36, -36, 36, 36)
+    IC.DefaultPOI.Manager:Add(closestPOIId, IC.ALWAYS_VISIBLE)
 
-    ALWAYS_VISIBLE_POIID = closestPOIId
+    WAYPOINT_MARKER = closestPOIId
 end
 
 local function onPlayerActivated()
     local wpnX, wpnY = GetMapPlayerWaypoint()
+
     if wpnX ~= 0 or wpnY ~= 0 then
         handleNewWaypoint(wpnX, wpnY)
     end
@@ -72,14 +80,13 @@ local function setupWaypointHandling()
         if pinType ~= MAP_PIN_TYPE_PLAYER_WAYPOINT then return end
 
         Log('Waypoint created: x:%.4f y:%.4f', xLoc, yLoc)
-        removeExistingWaypoint()
+
+        removeExistingWaypointMarker()
         handleNewWaypoint(xLoc, yLoc)
     end)
 
-    ZO_PostHook(_G, 'ZO_WorldMap_RemovePlayerWaypoint', function()
-        Log('Player waypoint deleted')
-        removeExistingWaypoint()
-    end)
+    ZO_PostHook(_G, 'ZO_WorldMap_RemovePlayerWaypoint', removeExistingWaypointMarker)
+    ZO_PostHook(_G, 'RemovePlayerWaypoint', removeExistingWaypointMarker)
 
     EVENT_MANAGER:RegisterForEvent('ImperialCartographer_Waypoint', EVENT_PLAYER_ACTIVATED, onPlayerActivated)
 end

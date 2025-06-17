@@ -1,1 +1,0 @@
-ZO_CreateStringId("SI_BINDING_NAME_IMP_CART_UPDATE_POINT", "Update Closest POI Marker")

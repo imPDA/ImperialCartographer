@@ -23,8 +23,6 @@ local function fillPOIDatabase()
         local zoneIndex, poiIndex = GetPOIIndices(i)
 
         if zoneIndex ~= 1 then
-            -- local zoneId = GetZoneId(zoneIndex)
-            -- db[zoneId][poiIndex] = i
             db[zoneIndex][poiIndex] = i
         end
     end
@@ -40,8 +38,7 @@ end
 
 -- ----------------------------------------------------------------------------
 
-do
-    fillPOIDatabase()
-end
+fillPOIDatabase()
 
+assert(ImperialCartographer)
 ImperialCartographer.GetPOIId = getPOIId
