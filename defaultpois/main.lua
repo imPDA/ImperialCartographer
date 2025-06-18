@@ -1,6 +1,6 @@
 local Vector = LibImplex.Vector
 
-local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_POI_MAIN_EVENT_NAMESPACE'
+local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_DEFAULT_POIS_MAIN_EVENT_NAMESPACE'
 
 local Log = ImperialCartographer_Logger()  -- TODO: hide if not loaded with debugging
 

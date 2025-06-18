@@ -1,5 +1,7 @@
 local Log = ImperialCartographer_Logger()
 
+local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_MAIN_EVENT_NAMESPACE'
+
 -- ----------------------------------------------------------------------------
 
 local addon = {}
@@ -10,7 +12,7 @@ addon.displayName = 'Imperial Cartographer'
 -- ----------------------------------------------------------------------------
 
 function addon:OnLoad()
-    Log('Loading %d', self.displayName)
+    Log('Loading %s', self.displayName)
 
     ImperialCartographerData = ImperialCartographerData or {}
 
