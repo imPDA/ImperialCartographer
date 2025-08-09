@@ -1,0 +1,59 @@
+This addon adds 3D markers of all POIs around Tamriel. It is an improved compass, more visual and easier to use.
+
+[SIZE="3"][COLOR="YellowGreen"]Dependencies[/COLOR][/SIZE]
+
+[spoiler][LIST]
+[*][URL="https://www.esoui.com/downloads/info7-LibAddonMenu-2.0.html"]LibAddonMenu-2.0[/URL]
+[*][URL="https://www.esoui.com/downloads/info4108-LibImplex.html"]LibImplex[/URL]
+[/LIST][/spoiler]
+
+[SIZE="3"][COLOR="YellowGreen"]Disclaimer[/COLOR][/SIZE]
+
+This addon was created as a showcase for the [URL="https://www.esoui.com/downloads/info4108-LibImplex.html"]LibImplex[/URL] library, which handles all types of 3D markers, but then I decided to make a complete addon out of it. My goal is to add as much points as possible (default POIs like wayshrines, bosses, delves, etc., skyshards, custom POIs, e.x. books, psijic breaches).
+
+[SIZE="3"][COLOR="YellowGreen"]Demonstration[/COLOR][/SIZE]
+
+[IMG]https://i.imgur.com/qZ11WCi.gif[/IMG]
+
+[IMG]https://i.imgur.com/jCpwJlW.gif[/IMG]
+
+[SIZE="3"][COLOR="YellowGreen"]Locations added already[/COLOR][/SIZE]
+
+[spoiler]
+Table of default POIs:
+POIs added / POIs total on the map (number in parentheses are not important). I can't reach some places because I need to go through quests to do so, I will do it later if nobody share these before I have time for  questing.
+
+[img]https://i.imgur.com/4jxJ6Tv.png[/img]
+[img]https://i.imgur.com/sHYBk6s.png[/img]
+[img]https://i.imgur.com/F0Wuctw.png[/img]
+[/spoiler]
+
+[SIZE="3"][COLOR="YellowGreen"]Finished features[/COLOR][/SIZE]
+[LIST]
+[*] Contains almost all default POIs of Tamriel (wayshrines, bosses, delves, dungeons, arenas, ...)
+[*] POIs visible from 5m to 235m (POIs appear on the compass near 235m, so I chose this distance)
+[*] POIs change transparency based on distance
+[*] POIs have a label with accurate distance
+[*] You can see POI's name when looked at directly
+[*] You can place waypoint near any POI and this POI will be visible for all time and will have waypoint mark on top
+[*] You can use default map filters to disable particular types of POIs
+[/LIST]
+
+[SIZE="3"][COLOR="YellowGreen"]Roadmap[/COLOR][/SIZE]
+[LIST]
+[*] Add settings with customization (transparency, distances when markers are visible, choise which typers of markers should be visible)
+[*] Add UI to more easily see which points have been added [50% - implemented but hidden]
+[*] Add all POIs in Tamriel [99%, see spoiler with added locations]
+[*] Add UI to move markers precisely and edit them more easily (similar to the housing interface for moving furniture)
+[*] Add 3D markers for wayshrines, banks, etc.
+[*] More refactoring
+[/LIST]
+
+[SIZE="3"][COLOR="YellowGreen"]Known bugs[/COLOR][/SIZE]
+[LIST]
+[*] Everything should be fixed, please report if you find something
+[/LIST]
+
+[SIZE="3"][COLOR="YellowGreen"]Contacts[/COLOR][/SIZE]
+
+You can send me feedback via Discord (@impda) or on the [URL="https://www.esoui.com/forums/showthread.php?t=11222"]forum[/URL].
