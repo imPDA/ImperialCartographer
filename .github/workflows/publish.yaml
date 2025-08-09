@@ -65,4 +65,5 @@ jobs:
         addon_id: '4112'
         version: ${{ github.ref_name }}
         zip_file: /tmp/${{ steps.setup.outputs.archive_name }}
+        description_file: 'description.txt'
         changelog_file: 'changelog.txt'
