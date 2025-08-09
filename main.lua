@@ -20,6 +20,7 @@ function addon:OnLoad()
 
     self.MarksManager:Initialize()
     self.DefaultPOIs:Initialize()
+    self.UndiscoveredPOIs:Initialize()
 end
 
 EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_ADD_ON_LOADED, function(_, addonName)

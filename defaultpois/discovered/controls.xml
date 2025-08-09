@@ -1,6 +1,6 @@
 <GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
     <Controls>
-        <TopLevelControl name="IMP_CART_DiscoveredPOIs" hidden="true">
+        <TopLevelControl name="IMP_CART_DiscoveredPOIs" hidden="true" mouseEnabled="true" movable="true">
             <Dimensions x="400" y="900" />
             <Anchor point="RIGHT" relativeTo="GuiRoot" offsetX="-100" />
             <Controls>
@@ -16,17 +16,17 @@
                         <Label name="$(parent)TotalDiscoveredLabel" font="ZoFontWinH4" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="(total: -/-)">
                             <Anchor point="LEFT" relativeTo="$(parent)Label" relativePoint="RIGHT" offsetX="4" />
                         </Label>
-                        <!-- <Button name="$(parent)CloseButton">
-                            <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" offsetX="16" offsetY="-16" />
+                        <Button name="$(parent)CloseButton">
+                            <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" offsetX="14" offsetY="-14" />
                             <Dimensions x="42" y="42"/>
                             <Textures 
                                 normal="/esoui/art/hud/radialicon_cancel_up.dds"
                                 mouseOver="/esoui/art/hud/radialicon_cancel_over.dds"
                             />
                             <OnClicked>
-                                IMP_CART_
+                                self:GetParent():GetParent():SetHidden(true)
                             </OnClicked>
-                        </Button> -->
+                        </Button>
                     </Controls>
                 </Control>
                 <Control name="$(parent)ScrollableList" inherits="ZO_ScrollList">

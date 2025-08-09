@@ -15,9 +15,9 @@ local function addWaypointTexture(marker)
     IMP_CART_Waypoint:SetAnchor(BOTTOM, marker.control, TOP, 0, 4)
     IMP_CART_Waypoint:SetHidden(false)
 
-    marker.control:SetAlpha(1)
-    marker.control:SetClampedToScreen(true)
-    marker.control:SetClampedToScreenInsets(-48, -48, 48, 48)
+    marker:SetAlpha(1)
+    marker:SetClampedToScreen(true)
+    marker:SetClampedToScreenInsets(-48, -48, 48, 48)
 
     table.remove(marker.updateFunctions, 1)
 end
@@ -43,10 +43,12 @@ function MarksManager:SetWaypointAt(wnX, wnY)
     Log('Waypoint min error: %f', minimalDistance)
     if minimalDistance > 0.1 then return end
 
+    local markType
     for type, marks in ipairs(self.marks) do
         for i, mark in ipairs(marks) do
             if self.markTags[type][i][1] == closestPOIId then
                 MARK_WITH_WAYPOINT = mark
+                markType = type
                 break
             end
         end
@@ -57,7 +59,7 @@ function MarksManager:SetWaypointAt(wnX, wnY)
 
         EM.UnregisterForEvent(EVENT_NAMESPACE .. 'Waypoint', EM.EVENT_AFTER_UPDATE)  -- TODO: get rid of workaround
         EM.RegisterForEvent(EVENT_NAMESPACE .. 'Waypoint', EM.EVENT_AFTER_UPDATE, function()
-            IMP_CART_Waypoint:SetHidden(MARK_WITH_WAYPOINT.control:IsHidden())
+            IMP_CART_Waypoint:SetHidden(MARK_WITH_WAYPOINT:IsHidden())
         end)
     end
 end
@@ -68,7 +70,7 @@ function MarksManager:RemoveExistingWaypointMarker()
     IMP_CART_Waypoint:ClearAnchors()
     IMP_CART_Waypoint:SetHidden(true)
 
-    MARK_WITH_WAYPOINT.control:SetClampedToScreen(false)
+    MARK_WITH_WAYPOINT:SetClampedToScreen(false)
 
     EM.UnregisterForEvent(EVENT_NAMESPACE .. 'Waypoint', EM.EVENT_AFTER_UPDATE)
 
@@ -107,18 +109,18 @@ local function updateDistanceLabel(marker, distance)
         distanceLabel:SetText(('%dm'):format(distance * 0.01))
     end
 
-    local control = marker.control
+    -- local control = marker.control
 
     distanceLabel:SetHidden(false)
     -- distanceLabel:SetAlpha(control:GetAlpha())
-    distanceLabel:SetDrawLevel(control:GetDrawLevel())
+    distanceLabel:SetDrawLevel(marker:GetDrawLevel())
 end
 
 local function addDistanceLabel(marker)
     if not marker.distanceLabel then return end
 
     marker.updateFunctions[#marker.updateFunctions+1] = updateDistanceLabel
-    -- marker.distanceLabel:SetHidden(false)
+    marker.distanceLabel:SetHidden(false)
 end
 
 -- ----------------------------------------------------------------------------
@@ -127,8 +129,7 @@ local RETICLE_OVER = nil
 local RETICLE_OVER_DISTANCE = nil
 local PREVIOUS_RETICLE_OVER = nil
 local function checkReticleOver(marker, distance)
-    local control = marker.control
-    local isValid, point, relTo, relPoint, offsetX, offsetY = control:GetAnchor()
+    local isValid, point, relTo, relPoint, offsetX, offsetY = marker:GetAnchor()
 
     if offsetX > -16 and offsetX < 16 then
         if offsetY > -16 and offsetY < 16 then
@@ -187,9 +188,9 @@ end
 
 local function addMouseOverHandler(marker, poiId)
     marker.poiId = poiId
-    marker.control:SetHandler('OnMouseEnter', POIMarkerOnMouseEnter)
-    marker.control:SetHandler('OnMouseExit', POIMarkerOnMouseExit)
-    marker.control:SetMouseEnabled(true)
+    marker:SetHandler('OnMouseEnter', POIMarkerOnMouseEnter)
+    marker:SetHandler('OnMouseExit', POIMarkerOnMouseExit)
+    marker:SetMouseEnabled(true)
 end
 
 -- ----------------------------------------------------------------------------

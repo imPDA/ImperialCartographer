@@ -2,7 +2,7 @@
     <Controls>
         <Label name="IMP_CART_DiscoveredPOIs_ListCell" font="ZoFontWinH4" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="-" virtual="true" />
 
-        <Label name="IMP_CART_DiscoveredPOIs_Column1" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="35" y="32" /></Label>
+        <Label name="IMP_CART_DiscoveredPOIs_Column1" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="80" y="32" /></Label>
         <Label name="IMP_CART_DiscoveredPOIs_Column2" horizontalAlignment="LEFT" virtual="true"><Dimensions y="32" /></Label>
         <Label name="IMP_CART_DiscoveredPOIs_Column3" horizontalAlignment="CENTER" virtual="true"><Dimensions x="100" y="32" /></Label>
         <!-- <Label name="IMP_CART_DiscoveredPOIs_Column4" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="40" y="32" /></Label> -->

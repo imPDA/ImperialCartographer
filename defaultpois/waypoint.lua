@@ -10,7 +10,7 @@ local function addWaypointTexture(marker)
 
     local EM = LibImplex.EVENT_MANAGER
     pcall(EM.RegisterForEvent, 'ImperialCartographerWaypoint', EM.EVENT_AFTER_UPDATE, function()
-        IMP_CART_Waypoint:SetHidden(marker.control:IsHidden())
+        IMP_CART_Waypoint:SetHidden(marker:IsHidden())
     end)  -- TODO: refactor :D
 end
 
@@ -28,7 +28,7 @@ local function removeExistingWaypointMarker()
     local EM = LibImplex.EVENT_MANAGER
     EM.UnregisterForEvent('ImperialCartographerWaypoint', EM.EVENT_AFTER_UPDATE)
 
-    IC.activeMarkers[markerIndex].control:SetClampedToScreen(false)
+    IC.activeMarkers[markerIndex]:SetClampedToScreen(false)
     IC.activeMarkers[markerIndex]:Delete()
     IC.activeMarkers[markerIndex] = IC:Place(WAYPOINT_MARKER)
 

@@ -1,0 +1,23 @@
+V.7
+- Fixes due to LibImplex update
+- Added new points
+
+V.6
+- Bugfix
+
+V. 5
+- Refactoring, including waypoint fix
+- Added support of default map filters
+
+V. 4
+- Added 99% of default POIs
+- Some functionality disabled until refactored
+
+V. 2
+- Waypoints
+- Fix for sublocations
+- New locations
+- List of all added POIs (but hidden for now)
+
+V. 1
+- Initial

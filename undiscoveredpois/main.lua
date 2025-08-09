@@ -1,32 +1,13 @@
 local Vector = LibImplex.Vector
 
-local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_DEFAULT_POIS_MAIN_EVENT_NAMESPACE'
+local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_UNDISCOVERED_POIS_MAIN_EVENT_NAMESPACE'
 
 local Log = ImperialCartographer_Logger()  -- TODO: hide if not loaded with debugging
 
 -- ----------------------------------------------------------------------------
 
-local function distanceFunction(marker, distance)
-    local minDistance = 500
-    local maxDistance = 23500
-
-    local minAlpha = 1
-    local maxAlpha = 0.2
-
-    local distanceLabel = marker.distanceLabel
-
-    if distance > maxDistance or distance < minDistance then
-        marker:SetHidden(true)
-        if distanceLabel then distanceLabel:SetHidden(true) end
-        return true
-    end
-
-    local distanceSection = maxDistance - minDistance
-    local alphaSection = maxAlpha - minAlpha
-
-    local percent = (distance - minDistance) / distanceSection
-    local alpha = minAlpha + percent * alphaSection
-    marker:SetAlpha(alpha)
+local function keepOnPlayersHeight(marker, distance, prwX, prwY, prwZ)
+    marker.position[2] = prwY + 100
 end
 
 local function onReticleOver(marker)
@@ -43,54 +24,43 @@ end
 
 -- ----------------------------------------------------------------------------
 
-local MARK_TYPE_DEFAULT_POI
+local MARK_TYPE_UNDISCOVERED_POI
 
-local DefaultPOIs = {}
+local UndiscoveredPOIs = {}
 
-function DefaultPOIs:Initialize()
-    self.data = ImperialCartographer.DefaultPOIsData
-
-    MARK_TYPE_DEFAULT_POI = ImperialCartographer.MarksManager:AddMarkType(
+function UndiscoveredPOIs:Initialize()
+    MARK_TYPE_UNDISCOVERED_POI = ImperialCartographer.MarksManager:AddMarkType(
         function() self:Update() end,
         true,
-        distanceFunction,
+        keepOnPlayersHeight,
         onReticleOver,
         nil
     )
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function()
-        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_UNDISCOVERED_POI)
     end)
 
-    -- ZO_PreHook(_G, 'ZO_WorldMap_RefreshWayshrines', function()
-    --     Log('`ZO_WorldMap_RefreshWayshrines` prehook')
-    -- end)
-
-    -- ZO_PostHook(_G, 'ZO_WorldMap_RefreshWayshrines', function()
-    --     Log('`ZO_WorldMap_RefreshWayshrines` posthook')
-    -- end)
-
-    self.discovered = {}
-    local function isFreshlyDiscovered(zoneIndex, poiIndex)
+    self.undiscovered = {}
+    local function isBecameDiscovered(zoneIndex, poiIndex)
         local poiNX, poiNZ, pinType, texture, isShownInCurrentMap, linkedCollectibleIsLocked, isDiscovered = GetPOIMapInfo(zoneIndex, poiIndex)
-        Log('%s vs %s', (self.discovered[poiIndex]), tostring(isDiscovered))
-        if self.discovered[poiIndex] ~= isDiscovered then return true end
+        if self.undiscovered[poiIndex] == isDiscovered then return true end
     end
 
     -- TODO: too heavy solution, refactor
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_POI_UPDATED, function(_, zoneIndex, poiIndex)
-        if not isFreshlyDiscovered(zoneIndex, poiIndex) then return end
+        if not isBecameDiscovered(zoneIndex, poiIndex) then return end
 
-        Log('Updating markers because of %d', poiIndex)
-        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+        Log('Updating undiscovered markers because of %d', poiIndex)
+        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_UNDISCOVERED_POI)
     end)
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_FAST_TRAVEL_NETWORK_UPDATED, function(_, nodeIndex)
         local zoneIndex, poiIndex = GetFastTravelNodePOIIndicies(nodeIndex)
-        if not isFreshlyDiscovered(zoneIndex, poiIndex) then return end
+        if not isBecameDiscovered(zoneIndex, poiIndex) then return end
 
         Log('Updating markers because of %d', poiIndex)
-        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_UNDISCOVERED_POI)
     end)
 
     if not IsConsoleUI() then
@@ -99,14 +69,14 @@ function DefaultPOIs:Initialize()
 
         for _, checkBox in ipairs(pinFilterCheckBoxes) do
             ZO_PostHook(checkBox, 'toggleFunction', function()
-                ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+                ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_UNDISCOVERED_POI)
             end)
         end
     end
 end
 
 local function getMarkerColorByPinType(pinType)
-    return {1, 1, 1}
+    return {1, 66/255, 0}
 end
 
 local function getMarkerSizeByPinType(pinType)
@@ -155,35 +125,31 @@ local function getFilters()
     return passesFilters
 end
 
-function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
+function UndiscoveredPOIs:AddPOI(zoneIndex, poiIndex)
     local poiId = ImperialCartographer.GetPOIId(zoneIndex, poiIndex)
     local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, poiIndex)
 
-    if not poiId then return Log('%d - poiId: not in a database', poiIndex) end
-    if not self.data[poiId] then return Log('%d - poiId: %d - %s - no data about position', poiIndex, poiId, objectiveName) end
-
-    local poiData = self.data[poiId]
-
-    if not poiData then return end
-
     local poiNX, poiNZ, pinType, texture, isShownInCurrentMap, linkedCollectibleIsLocked, isDiscovered = GetPOIMapInfo(zoneIndex, poiIndex)
-    self.discovered[poiIndex] = isDiscovered
 
     if not self.passesFilters(zoneIndex, poiIndex) then return Log('%d - poiId: %d - %s - Filtered', poiIndex, poiId, objectiveName) end
 
     local zoneId = GetZoneId(zoneIndex)
-    local wX, wY, wZ = ImperialCartographer.Calculations.ConvertWtoRW(zoneId, unpack(poiData))
+    -- local wX, wY, wZ = ImperialCartographer.Calculations.ConvertWtoRW(zoneId, unpack(poiData))
+
+    local calibration = {ImperialCartographer.Coordinates.GetCalibration(zoneId)}
+    local rwX, rwZ = ImperialCartographer.Coordinates.ConvertNormalizedToWorld(poiNX, poiNZ, calibration)
+    local rwY = 14000
 
     local size = getMarkerSizeByPinType(pinType)
     local color = getMarkerColorByPinType(pinType)
 
-    local mark, index = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_DEFAULT_POI, {poiId}, Vector({wX, wY, wZ}), texture, size, color)
+    local mark, index = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_UNDISCOVERED_POI, {poiId}, Vector({rwX, rwY, rwZ}), texture, size, color)
     mark.poiId = poiId  -- extra field TODO: avoid
 
-    Log('%d - poiId: %d - %s - OK', poiIndex, poiId, objectiveName)
+    Log('%d - poiId: %d - %s - undiscovered', poiIndex, poiId, objectiveName)
 end
 
-function DefaultPOIs:Update()
+function UndiscoveredPOIs:Update()
     ImperialCartographer.Calculations.ClearCalibrations()
 
     local zoneIndex = GetUnitZoneIndex('player')
@@ -193,16 +159,24 @@ function DefaultPOIs:Update()
 
     Log('Loaded in [index:%d, id:%d] %s', zoneIndex, GetZoneId(zoneIndex), GetZoneNameByIndex(zoneIndex))
 
-    for i, _ in pairs(self.discovered) do
-        self.discovered[i] = false
+    for i, _ in pairs(self.undiscovered) do
+        self.undiscovered[i] = nil
     end
 
-    for i = 1, GetNumPOIs(zoneIndex) do
-        self:AddPOI(zoneIndex, i)
+    for poiIndex = 1, GetNumPOIs(zoneIndex) do
+        local poiId = ImperialCartographer.GetPOIId(zoneIndex, poiIndex)
+        if poiId and not ImperialCartographer.DefaultPOIsData[poiId] then
+            self.undiscovered[poiId] = true
+            self:AddPOI(zoneIndex, poiIndex)
+        end
     end
+
+    -- for i = 1, GetNumPOIs(zoneIndex) do
+    --     self:AddPOI(zoneIndex, i)
+    -- end
 
     -- IMP_CART_UpdateScrollListControl()  -- TODO
 end
 
 assert(ImperialCartographer, 'ImperaialCartographer main.lua is not initialized')
-ImperialCartographer.DefaultPOIs = DefaultPOIs
+ImperialCartographer.UndiscoveredPOIs = UndiscoveredPOIs
