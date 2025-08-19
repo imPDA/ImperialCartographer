@@ -201,7 +201,7 @@ function DefaultPOIs:Update()
         self:AddPOI(zoneIndex, i)
     end
 
-    -- IMP_CART_UpdateScrollListControl()  -- TODO
+    IMP_CART_UpdateScrollListControl()
 end
 
 assert(ImperialCartographer, 'ImperaialCartographer main.lua is not initialized')

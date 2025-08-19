@@ -178,5 +178,21 @@ function UndiscoveredPOIs:Update()
     -- IMP_CART_UpdateScrollListControl()  -- TODO
 end
 
+function UndiscoveredPOIs.GetCloseMark()
+    for index, mark in pairs(ImperialCartographer.MarksManager.marks[MARK_TYPE_UNDISCOVERED_POI]) do
+        if #(mark.position - {select(2, GetUnitRawWorldPosition('player'))}) <= 200 then
+            local poiId = mark.poiId
+            local pos = mark.position
+
+            local zoneIndex, poiIndex = GetPOIIndices(poiId)
+            local objectiveName = GetPOIInfo(zoneIndex, poiIndex)
+
+            Log('Closest mark: %s (poiId: %d) - %.8f %d %.8f', objectiveName, poiId, pos[1], pos[2], pos[3])
+            df('Closest mark: %s (poiId: %d) - %.8f %d %.8f', objectiveName, poiId, pos[1], pos[2], pos[3])
+            return
+        end
+    end
+end
+
 assert(ImperialCartographer, 'ImperaialCartographer main.lua is not initialized')
 ImperialCartographer.UndiscoveredPOIs = UndiscoveredPOIs

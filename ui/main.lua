@@ -1,5 +1,5 @@
 local SCROLL_LIST_CONTROL
-local DISCOVERED_POIS_CONTROL
+-- local DISCOVERED_POIS_CONTROL
 
 -- local IC = ImperialCartographer
 
@@ -194,7 +194,17 @@ end
 
 function IMP_CART_DiscoveredPOIs_OnInitialised(control)
     CreateScrollListDataType(control:GetNamedChild('ScrollableList'))
-    DISCOVERED_POIS_CONTROL = control
+    -- DISCOVERED_POIS_CONTROL = control
+
+    local trackButton = control:GetNamedChild('Header'):GetNamedChild('TrackButton')
+    trackButton:SetHandler('OnMouseDown', function()
+        ImperialCartographer.sv.pinned = not ImperialCartographer.sv.pinned
+        if ImperialCartographer.sv.pinned then
+            trackButton:SetNormalTexture('EsoUI/Art/Buttons/radioButton_pin_up_disabled.dds')
+        else
+            trackButton:SetNormalTexture('EsoUI/Art/Buttons/radioButton_pin_up.dds')
+        end
+    end)
 
     IMP_CART_UpdateScrollListControl()
 end
