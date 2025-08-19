@@ -1,3 +1,7 @@
+V. 8
+- Added UI to see all discovered and undiscovered POIs
+- Command `/impcartgetclose` to get coordinates of the closest marker with id
+
 V.7
 - Fixes due to LibImplex update
 - Added new points
