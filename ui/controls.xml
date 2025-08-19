@@ -58,7 +58,7 @@
             </OnInitialized>
         </TopLevelControl>
 
-        <TopLevelControl name="IMP_CART_Rangefinder">
+        <TopLevelControl name="IMP_CART_Rangefinder" hidden="true">
             <Dimensions x="200" y="100" />
             <Anchor point="LEFT" relativePoint="CENTER" offsetX="100" />
             <Controls>
