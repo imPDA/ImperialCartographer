@@ -26,7 +26,7 @@ function addon:OnLoad()
     self.Settings:Initialize(addon.name .. 'SettingsControl', addon.displayName)
 
     self.MarksManager:Initialize()
-    self.DefaultPOIs:Initialize()
+    self.DefaultPOIs:Initialize(addon)
     self.UndiscoveredPOIs:Initialize()
 
     SLASH_COMMANDS['/impcartgetclose'] = ImperialCartographer.UndiscoveredPOIs.GetCloseMark

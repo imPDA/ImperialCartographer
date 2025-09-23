@@ -6,27 +6,36 @@ local Log = ImperialCartographer_Logger()  -- TODO: hide if not loaded with debu
 
 -- ----------------------------------------------------------------------------
 
-local function distanceFunction(marker, distance)
-    local minDistance = 500
-    local maxDistance = 23500
+local MARK_TYPE_DEFAULT_POI
 
-    local minAlpha = 1
-    local maxAlpha = 0.2
+local DefaultPOIs = {}
 
-    local distanceLabel = marker.distanceLabel
+-- ----------------------------------------------------------------------------
 
-    if distance > maxDistance or distance < minDistance then
-        marker:SetHidden(true)
-        if distanceLabel then distanceLabel:SetHidden(true) end
-        return true
+function DefaultPOIs:GetDistanceFunction()
+    local minDistance = self.sv.minDistance or 500
+    local maxDistance = self.sv.minDistance or 23500
+
+    -- TODO: remove default as they must be added to default SV values
+    local minAlpha = self.sv.minAlpha or 1
+    local maxAlpha = self.sv.maxAlpha or 0.2
+
+    return function(marker, distance)
+        local distanceLabel = marker.distanceLabel
+
+        if distance > maxDistance or distance < minDistance then
+            marker:SetHidden(true)
+            if distanceLabel then distanceLabel:SetHidden(true) end
+            return true
+        end
+
+        local distanceSection = maxDistance - minDistance
+        local alphaSection = maxAlpha - minAlpha
+
+        local percent = (distance - minDistance) / distanceSection
+        local alpha = minAlpha + percent * alphaSection
+        marker:SetAlpha(alpha)
     end
-
-    local distanceSection = maxDistance - minDistance
-    local alphaSection = maxAlpha - minAlpha
-
-    local percent = (distance - minDistance) / distanceSection
-    local alpha = minAlpha + percent * alphaSection
-    marker:SetAlpha(alpha)
 end
 
 local function onReticleOver(marker)
@@ -43,17 +52,20 @@ end
 
 -- ----------------------------------------------------------------------------
 
-local MARK_TYPE_DEFAULT_POI
+function DefaultPOIs:Initialize(parent)
+    self.parent = parent
 
-local DefaultPOIs = {}
+    if parent.sv.defaultPois == nil then
+        parent.sv.defaultPois = {}
+    end
+    self.sv = parent.sv.defaultPois
 
-function DefaultPOIs:Initialize()
     self.data = ImperialCartographer.DefaultPOIsData
 
     MARK_TYPE_DEFAULT_POI = ImperialCartographer.MarksManager:AddMarkType(
         function() self:Update() end,
         true,
-        distanceFunction,
+        self:GetDistanceFunction(),
         onReticleOver,
         nil
     )
@@ -105,12 +117,12 @@ function DefaultPOIs:Initialize()
     end
 end
 
-local function getMarkerColorByPinType(pinType)
-    return {1, 1, 1}
+function DefaultPOIs:GetMarkerColorByPinType(pinType)
+    return self.sv.markerColor or {1, 1, 1}
 end
 
-local function getMarkerSizeByPinType(pinType)
-    return 36
+function DefaultPOIs:GetMarkerSizeByPinType(pinType)
+    return self.sv.markerSize or 36
 end
 
 local function getFilters()
@@ -174,8 +186,8 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
     local zoneId = GetZoneId(zoneIndex)
     local wX, wY, wZ = ImperialCartographer.Calculations.ConvertWtoRW(zoneId, unpack(poiData))
 
-    local size = getMarkerSizeByPinType(pinType)
-    local color = getMarkerColorByPinType(pinType)
+    local size = self:GetMarkerSizeByPinType(pinType)
+    local color = self:GetMarkerColorByPinType(pinType)
 
     local mark, index = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_DEFAULT_POI, {poiId}, Vector({wX, wY, wZ}), texture, size, color)
     mark.poiId = poiId  -- extra field TODO: avoid
@@ -202,6 +214,10 @@ function DefaultPOIs:Update()
     end
 
     IMP_CART_UpdateScrollListControl()
+end
+
+function DefaultPOIs:TriggerFullUpdate()
+    self.parent.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
 end
 
 assert(ImperialCartographer, 'ImperaialCartographer main.lua is not initialized')
