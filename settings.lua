@@ -9,15 +9,15 @@ function settings:Initialize(settingsName, settingsDisplayName, sv)
         name = settingsDisplayName,
         author = '@impda',
         website = 'https://www.esoui.com/downloads/info4112-ImperialCartographer.html',
-        version = 'v9',
+        version = 'v10',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)
 
     local optionsData = {}
     optionsData[#optionsData+1] = {
-        type = "description",
-        title = "About",
+        type = 'description',
+        title = 'About',
         text =
 [[
 ImperialCartographer is an addon that shows Points of Interest (POIs) as markers within the 3D game world of The Elder Scrolls Online, providing a more immersive alternative to the standard compass or map.
@@ -26,21 +26,14 @@ It requires a manually built database because the game's API does not provide lo
 
 If you see a POI in red, it means its coordinates have not been added yet. The project relies on community contributions to map the world.
 ]],
-        -- reference = "MyAddonDescription"
+        -- reference = 'MyAddonDescription'
     }
 
     local defaultPOIsControls = {}
-    optionsData[#optionsData+1] = {
-        type = "submenu",
-		name = "Default points of interest (POIs)",
-		-- tooltip = "My Submenu Tooltip",
-		controls = defaultPOIsControls,
-		-- reference = "MyAddonSubmenu"
-    }
 
     defaultPOIsControls[#defaultPOIsControls+1] = {
-		type = "slider",
-		name = "POI size",
+		type = 'slider',
+		name = 'Marker size',
 		getFunc = function() return sv.defaultPois.markerSize end,
 		setFunc = function(value)
             if value ~= sv.defaultPois.markerSize then
@@ -49,18 +42,120 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
             end
         end,
 		min = 24,
-		max = 72,
-		-- reference = "MyAddonSlider"
+		max = 144,
 	}
+
+    defaultPOIsControls[#defaultPOIsControls+1] = {
+		type = 'slider',
+		name = 'Distance meter font size',
+		getFunc = function() return sv.defaultPois.fontSize end,
+		setFunc = function(value)
+            if value ~= sv.defaultPois.fontSize then
+                sv.defaultPois.fontSize = value
+                ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+            end
+        end,
+		min = 16,
+		max = 36,
+	}
+
+    defaultPOIsControls[#defaultPOIsControls+1] = {
+		type = 'slider',
+		name = 'POI name font size',
+		getFunc = function() return sv.defaultPois.labelFontSize end,
+		setFunc = function(value)
+            if value ~= sv.defaultPois.labelFontSize then
+                sv.defaultPois.labelFontSize = value
+                ImperialCartographer.DefaultPOIs:InitPOILabel()
+            end
+        end,
+		min = 16,
+		max = 36,
+	}
+
+    defaultPOIsControls[#defaultPOIsControls+1] = {
+		type = 'slider',
+		name = 'Transparency on distance',
+		getFunc = function() return sv.defaultPois.maxAlpha end,
+		setFunc = function(value)
+            if value ~= sv.defaultPois.maxAlpha then
+                sv.defaultPois.maxAlpha = value
+                ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+            end
+        end,
+		min = 0.05,
+		max = 1,
+        step = 0.01,
+        decimals = 2,
+        clampInput = true,
+        requiresReload = true,
+	}
+
+    defaultPOIsControls[#defaultPOIsControls+1] = {
+		type = 'slider',
+		name = 'Transparency when close',
+		getFunc = function() return sv.defaultPois.minAlpha end,
+		setFunc = function(value)
+            if value ~= sv.defaultPois.minAlpha then
+                sv.defaultPois.minAlpha = value
+                ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+            end
+        end,
+		min = 0.05,
+		max = 1,
+        step = 0.01,
+        decimals = 2,
+        clampInput = true,
+        requiresReload = true,
+	}
+
+    defaultPOIsControls[#defaultPOIsControls+1] = {
+		type = 'slider',
+		name = 'Max distance',
+		getFunc = function() return sv.defaultPois.maxDistance / 100 end,
+		setFunc = function(value)
+            value = value * 100
+            if value ~= sv.defaultPois.maxDistance then
+                sv.defaultPois.maxDistance = value
+                ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+            end
+        end,
+		min = 10,
+		max = 700,
+        -- step = 1,
+        -- decimals = 2,
+        clampInput = true,
+        requiresReload = true,
+	}
+
+    defaultPOIsControls[#defaultPOIsControls+1] = {
+        type = 'colorpicker',
+        name = 'Marker color',
+        getFunc = function() return unpack(sv.defaultPois.markerColor) end,
+        setFunc = function(r, g, b, a)
+            sv.defaultPois.markerColor = {r, g, b}
+            ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+        end,
+        -- width = 'half',
+        -- warning = 'warning text',
+    }
+
+    optionsData[#optionsData+1] = {
+        type = 'submenu',
+		name = 'Default points of interest (POIs)',
+		-- tooltip = 'My Submenu Tooltip',
+		controls = defaultPOIsControls,
+		-- reference = 'MyAddonSubmenu'
+    }
 
     LAM:RegisterOptionControls(settingsName, optionsData)
 
-    CALLBACK_MANAGER:RegisterCallback("LAM-PanelOpened", function(panelOpened)
+    CALLBACK_MANAGER:RegisterCallback('LAM-PanelOpened', function(panelOpened)
         if panelOpened ~= panel then return end
         IMP_CART_DiscoveredPOIs:SetHidden(false)
     end)
 
-    CALLBACK_MANAGER:RegisterCallback("LAM-PanelClosed", function(panelOpened)
+    CALLBACK_MANAGER:RegisterCallback('LAM-PanelClosed', function(panelOpened)
         if panelOpened ~= panel then return end
 
         if not ImperialCartographer.sv.pinned then

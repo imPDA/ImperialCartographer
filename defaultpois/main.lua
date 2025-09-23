@@ -14,7 +14,7 @@ local DefaultPOIs = {}
 
 function DefaultPOIs:GetDistanceFunction()
     local minDistance = self.sv.minDistance or 500
-    local maxDistance = self.sv.minDistance or 23500
+    local maxDistance = self.sv.maxDistance or 23500
 
     -- TODO: remove default as they must be added to default SV values
     local minAlpha = self.sv.minAlpha or 1
@@ -115,6 +115,12 @@ function DefaultPOIs:Initialize(parent)
             end)
         end
     end
+
+    self:InitPOILabel()
+end
+
+function DefaultPOIs:InitPOILabel()
+    ImperialCartographer_POILabel:GetNamedChild('POIName'):SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(self.sv.labelFontSize))
 end
 
 function DefaultPOIs:GetMarkerColorByPinType(pinType)
@@ -191,6 +197,7 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
 
     local mark, index = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_DEFAULT_POI, {poiId}, Vector({wX, wY, wZ}), texture, size, color)
     mark.poiId = poiId  -- extra field TODO: avoid
+    mark.distanceLabel:SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(self.sv.fontSize or 20))
 
     Log('%d - poiId: %d - %s - OK', poiIndex, poiId, objectiveName)
 end

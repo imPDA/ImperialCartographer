@@ -11,6 +11,16 @@ addon.displayName = 'Imperial Cartographer'
 
 local DEFAULT_SETTINGS = {
     pinned = false,
+    defaultPois = {
+        markerSize = 36,
+        markerColor = {1, 1, 1},
+        fontSize = 20,
+        minDistance = 500,
+        maxDistance = 23500,
+        minAlpha = 1,
+        maxAlpha = 0.2,
+        labelFontSize = 24,
+    }
 }
 
 -- ----------------------------------------------------------------------------
@@ -23,7 +33,7 @@ function addon:OnLoad()
     self.sv = ZO_SavedVars:NewAccountWide('ImperialCartographerSV', 1, nil, DEFAULT_SETTINGS)
 
     -- addon.userData = ImperialCartographerData
-    self.Settings:Initialize(addon.name .. 'SettingsControl', addon.displayName)
+    self.Settings:Initialize(addon.name .. 'SettingsControl', addon.displayName, self.sv)
 
     self.MarksManager:Initialize()
     self.DefaultPOIs:Initialize(addon)

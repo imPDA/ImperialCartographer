@@ -1,3 +1,6 @@
+V. 10
+- Added customization - you can change font size for distance label and reticle over label with POI name, size of marker itself, transparency of marker on the distance and when you are close to it, max distance of marker on which it is visible and color
+
 V. 9
 - Unused UI element properly hidden
 - Two more POIs (WGT and ICP)
