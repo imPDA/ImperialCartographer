@@ -274,4 +274,5 @@ ImperialCartographer.Calculations = {
     -- NormalizedToWorld = normalizedToWorld,
     ClearCalibrations = clearCalibrations,
     ConvertWtoRW = convertWtoRW,
+    GetNWToRNWConversionFunctions = getNWToRNWConversionFunctions,
 }

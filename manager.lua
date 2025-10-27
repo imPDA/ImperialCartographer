@@ -262,6 +262,15 @@ function MarksManager:RemoveMarks(type)
     end
 end
 
+function MarksManager:RemoveMark(type, index)
+    local marks = self.marks[type]
+
+    if not marks[index] then return end
+
+    marks[index]:Delete()
+    marks[index] = nil
+end
+
 function MarksManager:UpdateMarks(type)
     if not type then return end
 

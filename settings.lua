@@ -9,7 +9,7 @@ function settings:Initialize(settingsName, settingsDisplayName, sv)
         name = settingsDisplayName,
         author = '@impda',
         website = 'https://www.esoui.com/downloads/info4112-ImperialCartographer.html',
-        version = 'v10',
+        version = 'v11',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)
@@ -145,6 +145,26 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
 		name = 'Default points of interest (POIs)',
 		-- tooltip = 'My Submenu Tooltip',
 		controls = defaultPOIsControls,
+		-- reference = 'MyAddonSubmenu'
+    }
+
+    local questTrackerControls = {}
+
+    questTrackerControls[#questTrackerControls+1] = {
+        type = 'checkbox',
+        name = 'Enabled',
+        getFunc = function() return sv.questTracker.enabled end,
+        setFunc = function(value)
+            sv.questTracker.enabled = value
+        end,
+        requiresReload = true,
+    }
+
+    optionsData[#optionsData+1] = {
+        type = 'submenu',
+		name = 'Current tracked quest marker',
+		-- tooltip = 'My Submenu Tooltip',
+		controls = questTrackerControls,
 		-- reference = 'MyAddonSubmenu'
     }
 

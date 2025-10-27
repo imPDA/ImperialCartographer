@@ -20,6 +20,9 @@ local DEFAULT_SETTINGS = {
         minAlpha = 1,
         maxAlpha = 0.2,
         labelFontSize = 24,
+    },
+    questTracker = {
+        enabled = false,
     }
 }
 

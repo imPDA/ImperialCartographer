@@ -1,8 +1,8 @@
 ## Title: |cAFD3FFImperial Cartographer|r
 ## Description: ~_~
 ## Author: |c7c42f2@impda|r
-## AddOnVersion: 10
-## APIVersion: 101047
+## AddOnVersion: 11
+## APIVersion: 101048
 ## IsLibrary: false
 ## SavedVariables: ImperialCartographerSV ImperialCartographerData ImperialCartographerExport
 ## DependsOn: LibImplex>=13
@@ -26,6 +26,8 @@ ui/main.lua
 ui/controls.xml
 
 undiscoveredpois/main.lua
+
+currentquesttracker/main.lua
 
 ; defaultpois/manipulations/updatepoint.lua
 ; defaultpois/manipulations/bindings.lua
