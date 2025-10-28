@@ -1,3 +1,8 @@
+V. 12
+- Added 29 POIs in Solstice
+- Fixed error with currently tracked quest
+- Added new submenu to turn undiscovered POIs completely 
+
 V. 11
 - New text feature - mark for qurrently tracked quest. It displays direction for all time and inherits size of default POI mark, changes color depends on whether it exists in current zone (green) or you need to teleport (red). It rely on ESO API, so it can only display what game itself can display and it also sometimes can lead to weird results because of API nuances, more testing needed.
 

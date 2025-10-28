@@ -74,17 +74,10 @@ local function addQuestConditionPosition(self_, conditionData, positionData)
     addMarkForQuestIndex(questIndex)
 end
 
-ZO_PostHook(WORLD_MAP_QUEST_BREADCRUMBS, 'AddQuestConditionPosition', addQuestConditionPosition)
-
 local function track(questIndex)
     -- df('Trying to focus quest with index %s', tostring(questIndex))
     addMarkForQuestIndex(questIndex)
 end
-
-ZO_PostHook(ZO_Tracker, 'BeginTracking', function(self_, trackType, questIndex)
-    if trackType ~= TRACK_TYPE_QUEST then return end
-    track(questIndex)
-end)
 
 local INITIALIZED = false
 EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function()
@@ -101,6 +94,13 @@ EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function
                 WORLD_MAP_QUEST_BREADCRUMBS:RefreshQuest(CURRENT_QUEST_INDEX)
                 -- track(CURRENT_QUEST_INDEX)
             end
+        end)
+
+        ZO_PostHook(WORLD_MAP_QUEST_BREADCRUMBS, 'AddQuestConditionPosition', addQuestConditionPosition)
+
+        ZO_PostHook(ZO_Tracker, 'BeginTracking', function(self_, trackType, questIndex)
+            if trackType ~= TRACK_TYPE_QUEST then return end
+            track(questIndex)
         end)
 
         INITIALIZED = true

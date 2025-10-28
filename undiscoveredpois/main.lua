@@ -28,7 +28,9 @@ local MARK_TYPE_UNDISCOVERED_POI
 
 local UndiscoveredPOIs = {}
 
-function UndiscoveredPOIs:Initialize()
+function UndiscoveredPOIs:Initialize(addon)
+    if not addon.sv.undiscoveredPOIs.enabled then return end
+
     MARK_TYPE_UNDISCOVERED_POI = ImperialCartographer.MarksManager:AddMarkType(
         function() self:Update() end,
         true,
@@ -196,3 +198,16 @@ end
 
 assert(ImperialCartographer, 'ImperaialCartographer main.lua is not initialized')
 ImperialCartographer.UndiscoveredPOIs = UndiscoveredPOIs
+
+
+-- SLASH_COMMANDS['/impcshow'] = function(args)
+--     local poiId = tonumber(args)
+--     local marks = ImperialCartographer.MarksManager.marks[2]
+--     for i = 1, #marks do
+--         if marks[i].poiId == poiId then
+--             local str = '[%d] = {%s},'
+--             df(str, poiId, table.concat({marks[i].position[1], marks[i].position[2]-100, marks[i].position[3]}, ', '))
+--             return
+--         end
+--     end
+-- end

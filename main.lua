@@ -23,6 +23,9 @@ local DEFAULT_SETTINGS = {
     },
     questTracker = {
         enabled = false,
+    },
+    undiscoveredPOIs = {
+        enabled = false,
     }
 }
 
@@ -40,7 +43,7 @@ function addon:OnLoad()
 
     self.MarksManager:Initialize()
     self.DefaultPOIs:Initialize(addon)
-    self.UndiscoveredPOIs:Initialize()
+    self.UndiscoveredPOIs:Initialize(addon)
 
     SLASH_COMMANDS['/impcartgetclose'] = ImperialCartographer.UndiscoveredPOIs.GetCloseMark
 end
