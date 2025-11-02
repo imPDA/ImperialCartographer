@@ -1,10 +1,13 @@
+V. 13
+- New settings for "currently tracked quest" marker: you can set custom color and texture, hide marker if quest in a different zone
+
 V. 12
 - Added 29 POIs in Solstice
 - Fixed error with currently tracked quest
 - Added new submenu to turn undiscovered POIs completely 
 
 V. 11
-- New text feature - mark for qurrently tracked quest. It displays direction for all time and inherits size of default POI mark, changes color depends on whether it exists in current zone (green) or you need to teleport (red). It rely on ESO API, so it can only display what game itself can display and it also sometimes can lead to weird results because of API nuances, more testing needed.
+- New text feature - mark for currently tracked quest. It displays direction for all time and inherits size of default POI mark, changes color depends on whether it exists in current zone (green) or you need to teleport (red). It rely on ESO API, so it can only display what game itself can display and it also sometimes can lead to weird results because of API nuances, more testing needed.
 
 V. 10
 - Added customization - you can change font size for distance label and reticle over label with POI name, size of marker itself, transparency of marker on the distance and when you are close to it, max distance of marker on which it is visible and color

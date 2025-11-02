@@ -26,19 +26,20 @@ local function addMarkForQuestIndex(questIndex)
         ZO_ClearNumericallyIndexedTable(MARK_INDICIES)
     end
 
-    if not steps then
-        return
-    end
+    if not steps then return end
 
     local conditions = steps[#steps]
+
+    if not conditions then return end
+
     for i = 1, #conditions do
         local data = conditions[i]
 
-        local color = {1, 1, 1}
-        if not data.insideCurrentMapWorld then
-            color = {1, 0, 0}
+        local color
+        if data.insideCurrentMapWorld then
+            color = ImperialCartographer.sv.questTracker.markerColor
         else
-            color = {0, 1, 0}
+            color = ImperialCartographer.sv.questTracker.offmapMarkerColor
         end
 
         local nwX, nwZ = data.xLoc, data.yLoc
@@ -53,12 +54,15 @@ local function addMarkForQuestIndex(questIndex)
         local rwX, rwZ = ImperialCartographer.Coordinates.ConvertNormalizedToWorld(rnwX, rnwZ, calibration)
         local rwY = 0
 
-        local texture = '/esoui/art/mappins/ui_worldmap_pin_customdestination_white.dds'
+        local texture = ImperialCartographer.sv.questTracker.texture
         local size = ImperialCartographer.sv.defaultPois.markerSize
 
         local mark, markIndex = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_QUEST, data, {rwX, rwY, rwZ}, texture, size, color)
         mark.questIndex = questIndex
         mark.distanceLabel:SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(ImperialCartographer.sv.defaultPois.fontSize or 20))
+        mark.control:SetClampedToScreen(true)
+        mark.control:SetClampedToScreenInsets(-24, -24, 24, 48)
+        -- mark.insideCurrentMapWorld = data.insideCurrentMapWorld  -- TODO: is it possible to add zone name to offmap quest?
 
         MARK_INDICIES[#MARK_INDICIES+1] = markIndex
     end

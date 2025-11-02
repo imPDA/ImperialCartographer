@@ -23,6 +23,10 @@ local DEFAULT_SETTINGS = {
     },
     questTracker = {
         enabled = false,
+        texture = '/esoui/art/writadvisor/advisor_trackedpin_icon.dds',
+        markerColor = {0, 1, 0},
+        showOffmap = false,
+        offmapMarkerColor = {1, 0, 0},
     },
     undiscoveredPOIs = {
         enabled = false,

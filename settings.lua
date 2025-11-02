@@ -9,7 +9,7 @@ function settings:Initialize(settingsName, settingsDisplayName, sv)
         name = settingsDisplayName,
         author = '@impda',
         website = 'https://www.esoui.com/downloads/info4112-ImperialCartographer.html',
-        version = 'v12',
+        version = 'v13',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)
@@ -177,6 +177,57 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
         setFunc = function(value)
             sv.questTracker.enabled = value
         end,
+        requiresReload = true,
+    }
+
+    questTrackerControls[#questTrackerControls+1] = {
+        type = 'iconpicker',
+        name = 'Texture',
+        choices = {
+            '/esoui/art/writadvisor/advisor_trackedpin_icon.dds',
+            '/esoui/art/mappins/ui_worldmap_pin_customdestination_white.dds',
+            '/esoui/art/miscellaneous/gamepad/gp_bullet.dds',
+        },
+        iconSize = 48,
+        getFunc = function() return sv.questTracker.texture end,
+        setFunc = function(value)
+            sv.questTracker.texture = value
+        end,
+        requiresReload = true,
+    }
+
+    questTrackerControls[#questTrackerControls+1] = {
+        type = 'colorpicker',
+        name = 'Marker color',
+        getFunc = function() return unpack(sv.questTracker.markerColor) end,
+        setFunc = function(r, g, b, a)
+            sv.questTracker.markerColor = {r, g, b}
+        end,
+        -- width = 'half',
+        -- warning = 'warning text',
+        requiresReload = true,
+    }
+
+    questTrackerControls[#questTrackerControls+1] = {
+        type = 'checkbox',
+        name = 'Offmap marks',
+        getFunc = function() return sv.questTracker.showOffmap end,
+        setFunc = function(value)
+            sv.questTracker.showOffmap = value
+        end,
+        tooltip = 'When ON, marks quests from all locations. When OFF, only marks quests in your current zone.',
+        requiresReload = true,
+    }
+
+    questTrackerControls[#questTrackerControls+1] = {
+        type = 'colorpicker',
+        name = 'Offmap marker color',
+        getFunc = function() return unpack(sv.questTracker.offmapMarkerColor) end,
+        setFunc = function(r, g, b, a)
+            sv.questTracker.offmapMarkerColor = {r, g, b}
+        end,
+        -- width = 'half',
+        -- warning = 'warning text',
         requiresReload = true,
     }
 

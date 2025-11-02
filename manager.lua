@@ -3,6 +3,8 @@ local Log = ImperialCartographer_Logger()
 local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_MARKS_MANAGER_EVENT_NAMESPACE'
 local EM = LibImplex.EVENT_MANAGER
 
+local markerFactory = LibImplex.Marker('ImperialCartographer')
+
 -- ----------------------------------------------------------------------------
 
 local MarksManager = {}
@@ -228,7 +230,7 @@ function MarksManager:AddMark(type, tag, position, texture, size, color)
 
     if not markTypeData then return end
 
-    local mark = LibImplex.Marker.Marker2D(
+    local mark = markerFactory._2D(
         position,
         nil,
         texture,
@@ -236,6 +238,7 @@ function MarksManager:AddMark(type, tag, position, texture, size, color)
         color,
         unpack(markTypeData.markerUpdateFunctions)
     )
+    mark.control:SetClampedToScreen(false)  -- this is specifically for currentquesttraker, optimize 
 
     if markTypeData.showDistanceLabel then
         addDistanceLabel(mark)
