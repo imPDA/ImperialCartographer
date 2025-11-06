@@ -7,7 +7,7 @@ local Log = ImperialCartographer_Logger()  -- TODO: hide if not loaded with debu
 -- ----------------------------------------------------------------------------
 
 local function keepOnPlayersHeight(marker, distance, prwX, prwY, prwZ)
-    marker.position[2] = prwY + 100
+    marker[2] = prwY + 100
 end
 
 local function onReticleOver(marker)
@@ -206,7 +206,7 @@ ImperialCartographer.UndiscoveredPOIs = UndiscoveredPOIs
 --     for i = 1, #marks do
 --         if marks[i].poiId == poiId then
 --             local str = '[%d] = {%s},'
---             df(str, poiId, table.concat({marks[i].position[1], marks[i].position[2]-100, marks[i].position[3]}, ', '))
+--             df(str, poiId, table.concat({marks[i].position[1], marks[i][2]-100, marks[i].position[3]}, ', '))
 --             return
 --         end
 --     end

@@ -177,7 +177,7 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
     local poiId = ImperialCartographer.GetPOIId(zoneIndex, poiIndex)
     local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, poiIndex)
 
-    if not poiId then return Log('%d - poiId: not in a database', poiIndex) end
+    if not poiId then return Log('%d - poiId: not in a database (%s)', poiIndex, objectiveName) end
     if not self.data[poiId] then return Log('%d - poiId: %d - %s - no data about position', poiIndex, poiId, objectiveName) end
 
     local poiData = self.data[poiId]

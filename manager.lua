@@ -102,20 +102,22 @@ end
 
 -- ----------------------------------------------------------------------------
 
+local KILOMETERS = '%.1fkm'
+local METERS = '%dm'
 local function updateDistanceLabel(marker, distance)
     local distanceLabel = marker.distanceLabel
 
     if distance > 100000 then
-        distanceLabel:SetText(('%.1fkm'):format(distance * 0.00001))
+        distanceLabel:SetText(KILOMETERS:format(distance * 0.00001))
     else
-        distanceLabel:SetText(('%dm'):format(distance * 0.01))
+        distanceLabel:SetText(METERS:format(distance * 0.01))
     end
 
     -- local control = marker.control
 
     distanceLabel:SetHidden(false)
     -- distanceLabel:SetAlpha(control:GetAlpha())
-    distanceLabel:SetDrawLevel(marker:GetDrawLevel())
+    distanceLabel:SetDrawLevel(marker[7])  -- TODO: can I add label inside of marker to inherit draw level automatically?
 end
 
 local function addDistanceLabel(marker)
@@ -131,7 +133,7 @@ local RETICLE_OVER = nil
 local RETICLE_OVER_DISTANCE = nil
 local PREVIOUS_RETICLE_OVER = nil
 local function checkReticleOver(marker, distance)
-    local isValid, point, relTo, relPoint, offsetX, offsetY = marker:GetAnchor()
+    local offsetX, offsetY = marker[5], marker[6]
 
     if offsetX > -16 and offsetX < 16 then
         if offsetY > -16 and offsetY < 16 then
@@ -149,8 +151,6 @@ local function checkReticleOver(marker, distance)
 end
 
 local function registerReticleOverEvents()
-    local EM = LibImplex.EVENT_MANAGER
-
     EM.RegisterForEvent('ImperialCartographerRticleOverMarker', EM.EVENT_BEFORE_UPDATE, function()
         RETICLE_OVER = nil
     end)

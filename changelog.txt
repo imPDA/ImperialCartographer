@@ -1,3 +1,7 @@
+V. 14
+- Refactoring due to LibImplex refactoring
+- Added dummy textures "mark_0X.dds" into "/textures" folder, you can replace them
+
 V. 13
 - New settings for "currently tracked quest" marker: you can set custom color and texture, hide marker if quest in a different zone
 

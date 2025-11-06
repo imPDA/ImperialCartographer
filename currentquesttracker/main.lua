@@ -2,7 +2,7 @@ local MARK_TYPE_QUEST = nil
 local EVENT_NAMESPACE = 'IMP_CART_CURRENT_QUEST'
 
 local function keepOnPlayersHeight(marker, distance, prwX, prwY, prwZ)
-    marker.position[2] = prwY + 200
+    marker[2] = prwY + 200
 end
 
 local function onReticleOver(marker)
