@@ -32,6 +32,7 @@ currentquesttracker/main.lua
 
 ; lorebooks/main.lua
 
+; skyshards/controls.xml
 ; skyshards/main.lua
 
 ; defaultpois/manipulations/updatepoint.lua
@@ -43,6 +44,9 @@ currentquesttracker/main.lua
 ; defaultpois/waypoint.lua
 
 manager.lua
+
+bindings.lua
+bindings.xml
 
 ; This Add-on is not created by, affiliated with or sponsored by ZeniMax
 ; Media Inc. or its affiliates. The Elder Scrolls® and related logos are

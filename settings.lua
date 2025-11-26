@@ -13,11 +13,18 @@ function settings:Initialize(settingsName, settingsDisplayName, sv)
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)
-
     local optionsData = {}
+
+    local aboutControls = {}
     optionsData[#optionsData+1] = {
+        type = 'submenu',
+		name = 'About',
+		controls = aboutControls,
+    }
+
+    aboutControls[#aboutControls+1] = {
         type = 'description',
-        title = 'About',
+        -- title = 'About',
         text =
 [[
 ImperialCartographer is an addon that shows Points of Interest (POIs) as markers within the 3D game world of The Elder Scrolls Online, providing a more immersive alternative to the standard compass or map.
@@ -29,7 +36,35 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
         -- reference = 'MyAddonDescription'
     }
 
+    optionsData[#optionsData+1] = {
+        type = 'checkbox',
+		name = 'Active',
+		getFunc = function() return sv.active end,
+		setFunc = function(value)
+            ImperialCartographer.MarksManager:SetActive(value)
+        end,
+        tooltip = 'GLOBAL toggle for all marks from this addon',
+    }
+
+    optionsData[#optionsData+1] = {
+        type = 'checkbox',
+		name = 'Hide in combat',
+		getFunc = function() return sv.hideInCombat end,
+		setFunc = function(value)
+            ImperialCartographer.MarksManager:SetHideInCombat(value)
+        end,
+        tooltip = 'ALL marks will be automatically hidden on combat and restored afterwards',
+        -- requiresReload = true,
+    }
+
     local defaultPOIsControls = {}
+    optionsData[#optionsData+1] = {
+        type = 'submenu',
+		name = 'Default points of interest (POIs)',
+		-- tooltip = 'My Submenu Tooltip',
+		controls = defaultPOIsControls,
+		-- reference = 'MyAddonSubmenu'
+    }
 
     defaultPOIsControls[#defaultPOIsControls+1] = {
 		type = 'slider',
@@ -140,15 +175,14 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
         -- warning = 'warning text',
     }
 
+    local undiscoveredPOIsControls = {}
     optionsData[#optionsData+1] = {
         type = 'submenu',
-		name = 'Default points of interest (POIs)',
-		-- tooltip = 'My Submenu Tooltip',
-		controls = defaultPOIsControls,
+		name = 'Undiscovered points of interest (POIs)',
+		tooltip = 'Points which were not added to addon yet',
+		controls = undiscoveredPOIsControls,
 		-- reference = 'MyAddonSubmenu'
     }
-
-    local undiscoveredPOIsControls = {}
 
     undiscoveredPOIsControls[#undiscoveredPOIsControls+1] = {
         type = 'checkbox',
@@ -160,15 +194,14 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
         requiresReload = true,
     }
 
+    local questTrackerControls = {}
     optionsData[#optionsData+1] = {
         type = 'submenu',
-		name = 'Undiscovered points of interest (POIs)',
-		tooltip = 'Points which were not added to addon yet',
-		controls = undiscoveredPOIsControls,
+		name = 'Current tracked quest marker',
+		-- tooltip = 'My Submenu Tooltip',
+		controls = questTrackerControls,
 		-- reference = 'MyAddonSubmenu'
     }
-
-    local questTrackerControls = {}
 
     questTrackerControls[#questTrackerControls+1] = {
         type = 'checkbox',
@@ -234,14 +267,6 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
         -- width = 'half',
         -- warning = 'warning text',
         requiresReload = true,
-    }
-
-    optionsData[#optionsData+1] = {
-        type = 'submenu',
-		name = 'Current tracked quest marker',
-		-- tooltip = 'My Submenu Tooltip',
-		controls = questTrackerControls,
-		-- reference = 'MyAddonSubmenu'
     }
 
     LAM:RegisterOptionControls(settingsName, optionsData)

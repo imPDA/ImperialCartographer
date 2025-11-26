@@ -197,13 +197,55 @@ end
 
 -- ----------------------------------------------------------------------------
 
-function MarksManager:Initialize()
+function MarksManager:Initialize(addon)
     self.types = {}
     self.marks = {}
     self.markTags = {}
 
+    self.sv = addon.sv
+    self.on = nil
+
     registerReticleOverEvents()
     self:SetupWaypoint()
+
+    self:SetHideInCombat(self.sv.hideInCombat)
+    self:_turnOn(self.sv.active)
+end
+
+function MarksManager:SetActive(state)
+    self.sv.active = state
+    self:_turnOn(state)
+end
+
+function MarksManager:SetHideInCombat(hideInCombat)
+    self.sv.hideInCombat = hideInCombat
+
+    if hideInCombat then
+        self:_turnOn(not IsUnitInCombat('player'))
+        EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_COMBAT_STATE, function(_, inCombat)
+            self:_turnOn(not inCombat)
+        end)
+    else
+        self:_turnOn(true)
+        EVENT_MANAGER:UnregisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_COMBAT_STATE)
+    end
+end
+
+function MarksManager:ShouldShowMarks()
+    return not ((self.sv.hideInCombat and IsUnitInCombat('player')) or not self.sv.active)
+end
+
+function MarksManager:_turnOn(turnOn)
+    if self.on == turnOn then return end
+
+    local shouldTurnOn = self:ShouldShowMarks()
+    self.on = shouldTurnOn
+
+    if shouldTurnOn then
+        self:AddAll()
+    else
+        self:Clear()
+    end
 end
 
 function MarksManager:AddMarkType(updateFunc, showDistanceLabel, distanceFunc, reticleOverFunc, mouseOverFunc)
@@ -259,9 +301,11 @@ end
 function MarksManager:RemoveMarks(type)
     local marks = self.marks[type]
 
-    for i = 1, #marks do
-        marks[i]:Delete()
-        marks[i] = nil
+    if marks then
+        for i = 1, #marks do
+            marks[i]:Delete()
+            marks[i] = nil
+        end
     end
 end
 
@@ -279,7 +323,9 @@ function MarksManager:UpdateMarks(type)
 
     self:RemoveMarks(type)
 
+    if not self:ShouldShowMarks() then return end
     self.types[type].updateFunc()
+
     self:SetWaypoint()
 end
 
@@ -287,9 +333,23 @@ function MarksManager:Clear()
     local types = self.types
 
     for i = 1, #types do
-        self:Remove(types[i])
+        self:RemoveMarks(i)
+    end
+end
+
+function MarksManager:AddAll()
+    if not self:ShouldShowMarks() then return end
+
+    local types = self.types
+
+    for i = 1, #types do
+        types[i].updateFunc()
     end
 end
 
 assert(ImperialCartographer, 'ImperaialCartographer main.lua is not initialized')
 ImperialCartographer.MarksManager = MarksManager
+
+function ImperialCartographer_MarksManager_ToggleActive()
+    MarksManager:SetActive(not MarksManager.sv.active)
+end

@@ -11,6 +11,8 @@ addon.displayName = 'Imperial Cartographer'
 
 local DEFAULT_SETTINGS = {
     pinned = false,
+    hideInCombat = false,
+    active = true,
     defaultPois = {
         markerSize = 36,
         markerColor = {1, 1, 1},
@@ -42,12 +44,12 @@ function addon:OnLoad()
 
     self.sv = ZO_SavedVars:NewAccountWide('ImperialCartographerSV', 1, nil, DEFAULT_SETTINGS)
 
-    -- addon.userData = ImperialCartographerData
-    self.Settings:Initialize(addon.name .. 'SettingsControl', addon.displayName, self.sv)
+    self.userData = ImperialCartographerData
+    self.Settings:Initialize(self.name .. 'SettingsControl', self.displayName, self.sv)
 
-    self.MarksManager:Initialize()
-    self.DefaultPOIs:Initialize(addon)
-    self.UndiscoveredPOIs:Initialize(addon)
+    self.MarksManager:Initialize(self)
+    self.DefaultPOIs:Initialize(self)
+    self.UndiscoveredPOIs:Initialize(self)
 
     SLASH_COMMANDS['/impcartgetclose'] = ImperialCartographer.UndiscoveredPOIs.GetCloseMark
 end

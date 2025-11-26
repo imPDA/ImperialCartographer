@@ -1,0 +1,24 @@
+<GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
+	<Controls>
+        <TopLevelControl name="ImperialCartographer_UnmarkedSkyshard" resizeToFitDescendents="true" hidden="true">
+            <Dimensions y="100" />
+            <Anchor point="TOP" relativePoint="CENTER" offsetY="250" />
+            <Controls>
+                <!-- <Texture name="$(parent)BG" color="19B5FE" alpha="0.4" excludeFromResizeToFitExtents="true">
+                    <Anchor point="TOPLEFT" offsetX="-20" offsetY="-20" />
+                    <Anchor point="BOTTOMRIGHT" offsetX="20" offsetY="20" />
+                </Texture> -->
+                <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" excludeFromResizeToFitExtents="true"/>
+                <Label name="$(parent)Text" font="ZoFontWinH3" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="There is unmarked skyshard nearby!">
+                    <Anchor point="TOP" />
+                </Label>
+                <Label name="$(parent)Countdown" font="ZoFontWinH3" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="Look directly at skyshard">
+                    <Anchor point="TOP" relativeTo="$(parent)Text" relativePoint="BOTTOM" offsetY="8" />
+                </Label>
+                <Button name="$(parent)DoNotShowIt" inherits="ZO_DefaultTextButton" font="$(BOLD_FONT)|$(KB_24)|soft-shadow-thin" text="Do not show it">
+                    <Anchor point="BOTTOM" relativeTo="$(parent)" relativePoint="BOTTOM" offsetY="-4" />
+                </Button>
+            </Controls>
+        </TopLevelControl>
+	</Controls>
+</GuiXml>

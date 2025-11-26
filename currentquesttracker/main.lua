@@ -13,27 +13,19 @@ local function onReticleOver(marker)
 end
 
 local CURRENT_QUEST_INDEX = nil
-local MARK_INDICIES = {}
 local function addMarkForQuestIndex(questIndex)
+    if not questIndex then return end
+    CURRENT_QUEST_INDEX = questIndex  -- it was in different order b4 v15, can lead to bugs, check in the future
+
     local steps = WORLD_MAP_QUEST_BREADCRUMBS.conditionDataToPosition[questIndex]
-
-    CURRENT_QUEST_INDEX = questIndex
-
-    if #MARK_INDICIES > 0 then
-        for i = 1, #MARK_INDICIES do
-            ImperialCartographer.MarksManager:RemoveMark(MARK_TYPE_QUEST, MARK_INDICIES[i])
-        end
-        ZO_ClearNumericallyIndexedTable(MARK_INDICIES)
-    end
-
     if not steps then return end
 
     local conditions = steps[#steps]
-
     if not conditions then return end
 
     for i = 1, #conditions do
         local data = conditions[i]
+        if not data then return end
 
         local color
         if data.insideCurrentMapWorld then
@@ -63,32 +55,16 @@ local function addMarkForQuestIndex(questIndex)
         mark.control:SetClampedToScreen(true)
         mark.control:SetClampedToScreenInsets(-24, -24, 24, 48)
         -- mark.insideCurrentMapWorld = data.insideCurrentMapWorld  -- TODO: is it possible to add zone name to offmap quest?
-
-        MARK_INDICIES[#MARK_INDICIES+1] = markIndex
     end
 end
 
-local function addQuestConditionPosition(self_, conditionData, positionData)
-    local questIndex, stepIndex, conditionIndex = conditionData.questIndex, conditionData.stepIndex, conditionData.conditionIndex
-    -- df('Adding quest condition position for quest with index %d', questIndex)
 
-    if questIndex ~= CURRENT_QUEST_INDEX then return end
-    -- df('Position data: %f, %f', positionData.xLoc, positionData.yLoc)
-
-    addMarkForQuestIndex(questIndex)
-end
-
-local function track(questIndex)
-    -- df('Trying to focus quest with index %s', tostring(questIndex))
-    addMarkForQuestIndex(questIndex)
-end
-
-local INITIALIZED = false
+local INITIALIZED = false  -- TODO: create dedicated class
 EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function()
     if not ImperialCartographer.sv.questTracker.enabled then return end
 
     if not INITIALIZED then
-        MARK_TYPE_QUEST = ImperialCartographer.MarksManager:AddMarkType(function() end, true, keepOnPlayersHeight, onReticleOver)
+        MARK_TYPE_QUEST = ImperialCartographer.MarksManager:AddMarkType(function() addMarkForQuestIndex(CURRENT_QUEST_INDEX) end, true, keepOnPlayersHeight, onReticleOver)
 
         EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_LEADER_TO_FOLLOWER_SYNC, function(_, messageOrigin, syncType, currentSceneName, nextSceneName)
             if currentSceneName == 'worldMap' and nextSceneName == 'hud' then
@@ -96,21 +72,29 @@ EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function
                 local mapIndex = GetMapIndexByZoneId(zoneId)
                 ZO_WorldMap_SetMapByIndex(mapIndex)
                 WORLD_MAP_QUEST_BREADCRUMBS:RefreshQuest(CURRENT_QUEST_INDEX)
-                -- track(CURRENT_QUEST_INDEX)
             end
         end)
 
-        ZO_PostHook(WORLD_MAP_QUEST_BREADCRUMBS, 'AddQuestConditionPosition', addQuestConditionPosition)
+        ZO_PostHook(WORLD_MAP_QUEST_BREADCRUMBS, 'AddQuestConditionPosition', function(self_, conditionData, positionData)
+            local questIndex, stepIndex, conditionIndex = conditionData.questIndex, conditionData.stepIndex, conditionData.conditionIndex
+            if questIndex ~= CURRENT_QUEST_INDEX then return end
+
+            ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_QUEST)
+        end)
 
         ZO_PostHook(ZO_Tracker, 'BeginTracking', function(self_, trackType, questIndex)
             if trackType ~= TRACK_TYPE_QUEST then return end
-            track(questIndex)
+            if CURRENT_QUEST_INDEX == questIndex then return end
+
+            CURRENT_QUEST_INDEX = questIndex
+            ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_QUEST)
         end)
 
         INITIALIZED = true
     end
 
     if FOCUSED_QUEST_TRACKER and FOCUSED_QUEST_TRACKER.tracked and FOCUSED_QUEST_TRACKER.tracked[1] and FOCUSED_QUEST_TRACKER.tracked[1].arg1 then
-        track(FOCUSED_QUEST_TRACKER.tracked[1].arg1)
+        CURRENT_QUEST_INDEX = FOCUSED_QUEST_TRACKER.tracked[1].arg1
+        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_QUEST)
     end
 end)
