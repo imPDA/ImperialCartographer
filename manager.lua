@@ -352,4 +352,7 @@ ImperialCartographer.MarksManager = MarksManager
 
 function ImperialCartographer_MarksManager_ToggleActive()
     MarksManager:SetActive(not MarksManager.sv.active)
+    if IMP_CART_LAM_SETTING_ACTIVE then
+        IMP_CART_LAM_SETTING_ACTIVE:UpdateValue()
+    end
 end

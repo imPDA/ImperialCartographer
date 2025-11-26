@@ -1,3 +1,12 @@
+V. 16
+- Fixed versions
+- "Active" checkbox in settings synced with keybind
+
+V. 15
+- Added "Active" checkbox in settings to turn marks on/off completely, including default POIs and quest marks, etc.
+- Added keybind with same functionality
+- Added setting to turn marks off in combat automatically
+
 V. 14
 - Refactoring due to LibImplex refactoring
 - Added dummy textures "mark_0X.dds" into "/textures" folder, you can replace them

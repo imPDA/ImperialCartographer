@@ -9,7 +9,7 @@ function settings:Initialize(settingsName, settingsDisplayName, sv)
         name = settingsDisplayName,
         author = '@impda',
         website = 'https://www.esoui.com/downloads/info4112-ImperialCartographer.html',
-        version = 'v13',
+        version = 'v16',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)
@@ -44,6 +44,7 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
             ImperialCartographer.MarksManager:SetActive(value)
         end,
         tooltip = 'GLOBAL toggle for all marks from this addon',
+        reference = 'IMP_CART_LAM_SETTING_ACTIVE',
     }
 
     optionsData[#optionsData+1] = {
