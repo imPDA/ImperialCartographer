@@ -38,16 +38,16 @@ function DefaultPOIs:GetDistanceFunction()
     end
 end
 
+local markerToId = setmetatable({}, {__mode='k'})
+
 local function onReticleOver(marker)
-    local poiId = marker.poiId
-    if not poiId then return end
+    local poiId = markerToId[marker]
+    if not poiId then return 'Unknown' end
 
     local zoneIndex, poiIndex = GetPOIIndices(poiId)
     local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, poiIndex)
 
-    -- ImperialCartographer_POILabel:SetAnchor(BOTTOM, marker.control, TOP)
-    ImperialCartographer_POILabel:GetNamedChild('POIName'):SetText(zo_strformat(SI_WORLD_MAP_LOCATION_NAME, objectiveName))
-    ImperialCartographer_POILabel:SetHidden(false)
+    return zo_strformat(SI_WORLD_MAP_LOCATION_NAME, objectiveName)
 end
 
 -- ----------------------------------------------------------------------------
@@ -65,9 +65,8 @@ function DefaultPOIs:Initialize(parent)
     MARK_TYPE_DEFAULT_POI = ImperialCartographer.MarksManager:AddMarkType(
         function() self:Update() end,
         true,
-        self:GetDistanceFunction(),
-        onReticleOver,
-        nil
+        true,
+        onReticleOver
     )
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function()
@@ -196,8 +195,11 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
     local color = self:GetMarkerColorByPinType(pinType)
 
     local mark, index = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_DEFAULT_POI, {poiId}, Vector({wX, wY, wZ}), texture, size, color)
-    mark.poiId = poiId  -- extra field TODO: avoid
+    -- mark.poiId = poiId  -- extra field TODO: avoid
+
+    markerToId[mark] = poiId
     mark.distanceLabel:SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(self.sv.fontSize or 20))
+
 
     Log('%d - poiId: %d - %s - OK', poiIndex, poiId, objectiveName)
 end

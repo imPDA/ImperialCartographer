@@ -1,15 +1,10 @@
 local MARK_TYPE_QUEST = nil
 local EVENT_NAMESPACE = 'IMP_CART_CURRENT_QUEST'
 
-local function keepOnPlayersHeight(marker, distance, prwX, prwY, prwZ)
-    marker[2] = prwY + 200
-end
+local markerToQuestIndex = setmetatable({}, {__mode='k'})
 
 local function onReticleOver(marker)
-    local questName = GetJournalQuestInfo(marker.questIndex)
-
-    ImperialCartographer_POILabel:GetNamedChild('POIName'):SetText(questName)
-    ImperialCartographer_POILabel:SetHidden(false)
+    return GetJournalQuestInfo(markerToQuestIndex[marker])
 end
 
 local CURRENT_QUEST_INDEX = nil
@@ -50,7 +45,8 @@ local function addMarkForQuestIndex(questIndex)
         local size = ImperialCartographer.sv.defaultPois.markerSize
 
         local mark, markIndex = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_QUEST, data, {rwX, rwY, rwZ}, texture, size, color)
-        mark.questIndex = questIndex
+        -- mark.questIndex = questIndex
+        markerToQuestIndex[mark] = questIndex
         mark.distanceLabel:SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(ImperialCartographer.sv.defaultPois.fontSize or 20))
         mark.control:SetClampedToScreen(true)
         mark.control:SetClampedToScreenInsets(-24, -24, 24, 48)
@@ -64,7 +60,13 @@ EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function
     if not ImperialCartographer.sv.questTracker.enabled then return end
 
     if not INITIALIZED then
-        MARK_TYPE_QUEST = ImperialCartographer.MarksManager:AddMarkType(function() addMarkForQuestIndex(CURRENT_QUEST_INDEX) end, true, keepOnPlayersHeight, onReticleOver)
+        MARK_TYPE_QUEST = ImperialCartographer.MarksManager:AddMarkType(
+            function() addMarkForQuestIndex(CURRENT_QUEST_INDEX) end,
+            true,
+            false,
+            onReticleOver,
+            LibImplex.Systems.KeepOnPlayersHeight
+        )
 
         EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_LEADER_TO_FOLLOWER_SYNC, function(_, messageOrigin, syncType, currentSceneName, nextSceneName)
             if currentSceneName == 'worldMap' and nextSceneName == 'hud' then

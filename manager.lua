@@ -3,7 +3,7 @@ local Log = ImperialCartographer_Logger()
 local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_MARKS_MANAGER_EVENT_NAMESPACE'
 local EM = LibImplex.EVENT_MANAGER
 
-local markerFactory = LibImplex.Marker('ImperialCartographer')
+local markerFactory = LibImplex.Objects('ImperialCartographer')
 
 -- ----------------------------------------------------------------------------
 
@@ -102,74 +102,6 @@ end
 
 -- ----------------------------------------------------------------------------
 
-local KILOMETERS = '%.1fkm'
-local METERS = '%dm'
-local function updateDistanceLabel(marker, distance)
-    local distanceLabel = marker.distanceLabel
-
-    if distance > 100000 then
-        distanceLabel:SetText(KILOMETERS:format(distance * 0.00001))
-    else
-        distanceLabel:SetText(METERS:format(distance * 0.01))
-    end
-
-    -- local control = marker.control
-
-    distanceLabel:SetHidden(false)
-    -- distanceLabel:SetAlpha(control:GetAlpha())
-    distanceLabel:SetDrawLevel(marker[7])  -- TODO: can I add label inside of marker to inherit draw level automatically?
-end
-
-local function addDistanceLabel(marker)
-    if not marker.distanceLabel then return end
-
-    marker.updateFunctions[#marker.updateFunctions+1] = updateDistanceLabel
-    marker.distanceLabel:SetHidden(false)
-end
-
--- ----------------------------------------------------------------------------
-
-local RETICLE_OVER = nil
-local RETICLE_OVER_DISTANCE = nil
-local PREVIOUS_RETICLE_OVER = nil
-local function checkReticleOver(marker, distance)
-    local offsetX, offsetY = marker[5], marker[6]
-
-    if offsetX > -16 and offsetX < 16 then
-        if offsetY > -16 and offsetY < 16 then
-            if RETICLE_OVER then
-                if distance < RETICLE_OVER_DISTANCE then
-                    RETICLE_OVER = marker
-                    RETICLE_OVER_DISTANCE = distance
-                end
-            else
-                RETICLE_OVER = marker
-                RETICLE_OVER_DISTANCE = distance
-            end
-        end
-    end
-end
-
-local function registerReticleOverEvents()
-    EM.RegisterForEvent('ImperialCartographerRticleOverMarker', EM.EVENT_BEFORE_UPDATE, function()
-        RETICLE_OVER = nil
-    end)
-
-    EM.RegisterForEvent('ImperialCartographerRticleOverMarker', EM.EVENT_AFTER_UPDATE, function()
-        if RETICLE_OVER ~= PREVIOUS_RETICLE_OVER then
-            if RETICLE_OVER then
-                RETICLE_OVER:reticleOverFunc()
-            else
-                ImperialCartographer_POILabel:SetHidden(true)
-            end
-
-            PREVIOUS_RETICLE_OVER = RETICLE_OVER
-        end
-    end)
-end
-
--- ----------------------------------------------------------------------------
-
 local function POIMarkerOnMouseEnter(self)
     local poiId = self.m_Marker.poiId
     Log('Mouse enter, poiId: %s', tostring(poiId))
@@ -205,7 +137,6 @@ function MarksManager:Initialize(addon)
     self.sv = addon.sv
     self.on = nil
 
-    registerReticleOverEvents()
     self:SetupWaypoint()
 
     self:SetHideInCombat(self.sv.hideInCombat)
@@ -248,18 +179,23 @@ function MarksManager:_turnOn(turnOn)
     end
 end
 
-function MarksManager:AddMarkType(updateFunc, showDistanceLabel, distanceFunc, reticleOverFunc, mouseOverFunc)
+local filterByDistance = LibImplex.Systems.NewFilterByDistanceSystem(2, 225)
+local changeAlphaWithDistance = LibImplex.Systems.NewChangeAlphaWithDistanceSystem(2, 1, 225, 0.2)
+
+function MarksManager:AddMarkType(updateFunc, showDistanceLabel, distanceFunc, reticleOverFunc, ...)
     local typeIndex = #self.types + 1
 
     self.types[typeIndex] = {
         updateFunc = updateFunc,
         showDistanceLabel = showDistanceLabel,
-        reticleOverFunc = reticleOverFunc,
-        markerUpdateFunctions = {
-            distanceFunc,
-            mouseOverFunc
-        },
+        markerUpdateSystems = {...},
+        reticleOverSystem = LibImplex.Systems.OnReticleOver(reticleOverFunc),
     }
+
+    if distanceFunc then
+        table.insert(self.types[typeIndex].markerUpdateSystems, filterByDistance)
+        table.insert(self.types[typeIndex].markerUpdateSystems, changeAlphaWithDistance)
+    end
 
     self.marks[typeIndex] = {}
     self.markTags[typeIndex] = {}
@@ -272,23 +208,23 @@ function MarksManager:AddMark(type, tag, position, texture, size, color)
 
     if not markTypeData then return end
 
-    local mark = markerFactory._2D(
-        position,
-        nil,
-        texture,
-        {size, size},
-        color,
-        unpack(markTypeData.markerUpdateFunctions)
-    )
+    local mark = markerFactory._2D()
     mark.control:SetClampedToScreen(false)  -- this is specifically for currentquesttraker, optimize 
+    mark:SetPosition(unpack(position))
+    mark:SetTexture(texture)
+    mark:SetDimensions(size, size)
 
     if markTypeData.showDistanceLabel then
-        addDistanceLabel(mark)
+        mark:AddSystem(LibImplex.Systems.UpdateDistanceLabel)
+        mark.distanceLabel:SetHidden(false)
     end
 
-    if markTypeData.reticleOverFunc then
-        mark.reticleOverFunc = markTypeData.reticleOverFunc  -- extra field TODO: avoid
-        mark.updateFunctions[#mark.updateFunctions+1] = checkReticleOver
+    if markTypeData.reticleOverSystem then
+        mark:AddSystem(markTypeData.reticleOverSystem)
+    end
+
+    for _, system in ipairs(markTypeData.markerUpdateSystems) do
+        mark:AddSystem(system)
     end
 
     local index = #self.marks[type] + 1

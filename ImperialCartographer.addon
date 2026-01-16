@@ -1,13 +1,14 @@
 ## Title: |cAFD3FFImperial Cartographer|r
 ## Description: ~_~
 ## Author: |c7c42f2@impda|r
-## AddOnVersion: 16
+## AddOnVersion: 17
 ## APIVersion: 101048
 ## IsLibrary: false
 ## SavedVariables: ImperialCartographerSV ImperialCartographerData ImperialCartographerExport
-## DependsOn: LibImplex>=17
+## SavedVariables: ImperialCartographerCyrodiilSubzones 
+## DependsOn: LibImplex>=18
 ## OptionalDependsOn: LoreBooks>=99
-## PCDependsOn: LibAddonMenu-2.0>=40
+## PCDependsOn: LibAddonMenu-2.0>=41
 
 logger.lua
 
@@ -42,6 +43,8 @@ currentquesttracker/main.lua
 ; defaultpois/manipulations/export.lua
 
 ; defaultpois/waypoint.lua
+
+; cyrodiilsubzones/main.lua
 
 manager.lua
 
