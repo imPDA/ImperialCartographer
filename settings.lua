@@ -95,86 +95,86 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
 		max = 36,
 	}
 
-    defaultPOIsControls[#defaultPOIsControls+1] = {
-		type = 'slider',
-		name = 'POI name font size',
-		getFunc = function() return sv.defaultPois.labelFontSize end,
-		setFunc = function(value)
-            if value ~= sv.defaultPois.labelFontSize then
-                sv.defaultPois.labelFontSize = value
-                ImperialCartographer.DefaultPOIs:InitPOILabel()
-            end
-        end,
-		min = 16,
-		max = 36,
-	}
+    -- defaultPOIsControls[#defaultPOIsControls+1] = {
+	-- 	type = 'slider',
+	-- 	name = 'POI name font size',
+	-- 	getFunc = function() return sv.defaultPois.labelFontSize end,
+	-- 	setFunc = function(value)
+    --         if value ~= sv.defaultPois.labelFontSize then
+    --             sv.defaultPois.labelFontSize = value
+    --             ImperialCartographer.DefaultPOIs:InitPOILabel()
+    --         end
+    --     end,
+	-- 	min = 16,
+	-- 	max = 36,
+	-- }
 
-    defaultPOIsControls[#defaultPOIsControls+1] = {
-		type = 'slider',
-		name = 'Transparency on distance',
-		getFunc = function() return sv.defaultPois.maxAlpha end,
-		setFunc = function(value)
-            if value ~= sv.defaultPois.maxAlpha then
-                sv.defaultPois.maxAlpha = value
-                ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
-            end
-        end,
-		min = 0.05,
-		max = 1,
-        step = 0.01,
-        decimals = 2,
-        clampInput = true,
-        requiresReload = true,
-	}
+    -- defaultPOIsControls[#defaultPOIsControls+1] = {
+	-- 	type = 'slider',
+	-- 	name = 'Transparency on distance',
+	-- 	getFunc = function() return sv.defaultPois.maxAlpha end,
+	-- 	setFunc = function(value)
+    --         if value ~= sv.defaultPois.maxAlpha then
+    --             sv.defaultPois.maxAlpha = value
+    --             ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+    --         end
+    --     end,
+	-- 	min = 0.05,
+	-- 	max = 1,
+    --     step = 0.01,
+    --     decimals = 2,
+    --     clampInput = true,
+    --     requiresReload = true,
+	-- }
 
-    defaultPOIsControls[#defaultPOIsControls+1] = {
-		type = 'slider',
-		name = 'Transparency when close',
-		getFunc = function() return sv.defaultPois.minAlpha end,
-		setFunc = function(value)
-            if value ~= sv.defaultPois.minAlpha then
-                sv.defaultPois.minAlpha = value
-                ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
-            end
-        end,
-		min = 0.05,
-		max = 1,
-        step = 0.01,
-        decimals = 2,
-        clampInput = true,
-        requiresReload = true,
-	}
+    -- defaultPOIsControls[#defaultPOIsControls+1] = {
+	-- 	type = 'slider',
+	-- 	name = 'Transparency when close',
+	-- 	getFunc = function() return sv.defaultPois.minAlpha end,
+	-- 	setFunc = function(value)
+    --         if value ~= sv.defaultPois.minAlpha then
+    --             sv.defaultPois.minAlpha = value
+    --             ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+    --         end
+    --     end,
+	-- 	min = 0.05,
+	-- 	max = 1,
+    --     step = 0.01,
+    --     decimals = 2,
+    --     clampInput = true,
+    --     requiresReload = true,
+	-- }
 
-    defaultPOIsControls[#defaultPOIsControls+1] = {
-		type = 'slider',
-		name = 'Max distance',
-		getFunc = function() return sv.defaultPois.maxDistance / 100 end,
-		setFunc = function(value)
-            value = value * 100
-            if value ~= sv.defaultPois.maxDistance then
-                sv.defaultPois.maxDistance = value
-                ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
-            end
-        end,
-		min = 10,
-		max = 700,
-        -- step = 1,
-        -- decimals = 2,
-        clampInput = true,
-        requiresReload = true,
-	}
+    -- defaultPOIsControls[#defaultPOIsControls+1] = {
+	-- 	type = 'slider',
+	-- 	name = 'Max distance',
+	-- 	getFunc = function() return sv.defaultPois.maxDistance / 100 end,
+	-- 	setFunc = function(value)
+    --         value = value * 100
+    --         if value ~= sv.defaultPois.maxDistance then
+    --             sv.defaultPois.maxDistance = value
+    --             ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+    --         end
+    --     end,
+	-- 	min = 10,
+	-- 	max = 700,
+    --     -- step = 1,
+    --     -- decimals = 2,
+    --     clampInput = true,
+    --     requiresReload = true,
+	-- }
 
-    defaultPOIsControls[#defaultPOIsControls+1] = {
-        type = 'colorpicker',
-        name = 'Marker color',
-        getFunc = function() return unpack(sv.defaultPois.markerColor) end,
-        setFunc = function(r, g, b, a)
-            sv.defaultPois.markerColor = {r, g, b}
-            ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
-        end,
-        -- width = 'half',
-        -- warning = 'warning text',
-    }
+    -- defaultPOIsControls[#defaultPOIsControls+1] = {
+    --     type = 'colorpicker',
+    --     name = 'Marker color',
+    --     getFunc = function() return unpack(sv.defaultPois.markerColor) end,
+    --     setFunc = function(r, g, b, a)
+    --         sv.defaultPois.markerColor = {r, g, b}
+    --         ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+    --     end,
+    --     -- width = 'half',
+    --     -- warning = 'warning text',
+    -- }
 
     local undiscoveredPOIsControls = {}
     optionsData[#optionsData+1] = {
@@ -235,40 +235,40 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
         requiresReload = true,
     }
 
-    questTrackerControls[#questTrackerControls+1] = {
-        type = 'colorpicker',
-        name = 'Marker color',
-        getFunc = function() return unpack(sv.questTracker.markerColor) end,
-        setFunc = function(r, g, b, a)
-            sv.questTracker.markerColor = {r, g, b}
-        end,
-        -- width = 'half',
-        -- warning = 'warning text',
-        requiresReload = true,
-    }
+    -- questTrackerControls[#questTrackerControls+1] = {
+    --     type = 'colorpicker',
+    --     name = 'Marker color',
+    --     getFunc = function() return unpack(sv.questTracker.markerColor) end,
+    --     setFunc = function(r, g, b, a)
+    --         sv.questTracker.markerColor = {r, g, b}
+    --     end,
+    --     -- width = 'half',
+    --     -- warning = 'warning text',
+    --     requiresReload = true,
+    -- }
 
-    questTrackerControls[#questTrackerControls+1] = {
-        type = 'checkbox',
-        name = 'Offmap marks',
-        getFunc = function() return sv.questTracker.showOffmap end,
-        setFunc = function(value)
-            sv.questTracker.showOffmap = value
-        end,
-        tooltip = 'When ON, marks quests from all locations. When OFF, only marks quests in your current zone.',
-        requiresReload = true,
-    }
+    -- questTrackerControls[#questTrackerControls+1] = {
+    --     type = 'checkbox',
+    --     name = 'Offmap marks',
+    --     getFunc = function() return sv.questTracker.showOffmap end,
+    --     setFunc = function(value)
+    --         sv.questTracker.showOffmap = value
+    --     end,
+    --     tooltip = 'When ON, marks quests from all locations. When OFF, only marks quests in your current zone.',
+    --     requiresReload = true,
+    -- }
 
-    questTrackerControls[#questTrackerControls+1] = {
-        type = 'colorpicker',
-        name = 'Offmap marker color',
-        getFunc = function() return unpack(sv.questTracker.offmapMarkerColor) end,
-        setFunc = function(r, g, b, a)
-            sv.questTracker.offmapMarkerColor = {r, g, b}
-        end,
-        -- width = 'half',
-        -- warning = 'warning text',
-        requiresReload = true,
-    }
+    -- questTrackerControls[#questTrackerControls+1] = {
+    --     type = 'colorpicker',
+    --     name = 'Offmap marker color',
+    --     getFunc = function() return unpack(sv.questTracker.offmapMarkerColor) end,
+    --     setFunc = function(r, g, b, a)
+    --         sv.questTracker.offmapMarkerColor = {r, g, b}
+    --     end,
+    --     -- width = 'half',
+    --     -- warning = 'warning text',
+    --     requiresReload = true,
+    -- }
 
     LAM:RegisterOptionControls(settingsName, optionsData)
 

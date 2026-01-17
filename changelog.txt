@@ -1,3 +1,10 @@
+V. 18
+- Fix for Waypoints
+- Some settings disabled for further investigation
+
+V. 17
+- Adapted for new LibImplex version
+
 V. 16
 - Fixed versions
 - "Active" checkbox in settings synced with keybind

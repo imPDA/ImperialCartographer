@@ -10,14 +10,9 @@
             <Anchor point="TOP" relativePoint="BOTTOM" offsetY="-8" />
         </Label>
 
-        <TopLevelControl name="IMP_CART_Waypoint" tier="DT_LOW" layer="DL_BACKGROUND" hidden="true">
+        <Texture name="IMP_CART_WaypointTexture" textureFile="EsoUI/Art/MapPins/UI_Worldmap_pin_customDestination_white.dds" pixelRoundingEnabled="false" hidden="true">
             <Dimensions x="32" y="32" />
-            <Controls>
-                <Texture name="$(parent)Texture" textureFile="EsoUI/Art/MapPins/UI_Worldmap_pin_customDestination_white.dds">
-                    <AnchorFill />
-                </Texture>
-            </Controls>
-        </TopLevelControl>
+        </Texture>
         
         <TopLevelControl name="ImperialCartographer_POILabel" hidden="true">
             <Anchor point="CENTER" />

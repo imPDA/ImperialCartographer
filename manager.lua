@@ -9,74 +9,76 @@ local markerFactory = LibImplex.Objects('ImperialCartographer')
 
 local MarksManager = {}
 
+-- TODO: settings
+local FILTER_BY_DISTANCE = LibImplex.Systems.NewFilterByDistanceSystem(2, 225)
+local CHANGE_ALPHA_WITH_DISTANCE = LibImplex.Systems.NewChangeAlphaWithDistanceSystem(2, 1, 225, 0.2)
+
 -- ----------------------------------------------------------------------------
 
 local MARK_WITH_WAYPOINT
 
-local function addWaypointTexture(marker)
-    IMP_CART_Waypoint:SetAnchor(BOTTOM, marker.control, TOP, 0, 4)
-    IMP_CART_Waypoint:SetHidden(false)
-
-    marker:SetAlpha(1)
-    marker:SetClampedToScreen(true)
-    marker:SetClampedToScreenInsets(-48, -48, 48, 48)
-
-    table.remove(marker.updateFunctions, 1)
-end
-
-function MarksManager:SetWaypointAt(wnX, wnY)
+function MarksManager:SetWaypointAt(wnX, wnZ)
     local zoneIndex = GetCurrentMapZoneIndex()
 
+    local zoneId = GetZoneId(zoneIndex)
+    local calibration = {ImperialCartographer.Coordinates.GetCalibration(zoneId)}
+    local wpwX, wpwZ = ImperialCartographer.Coordinates.ConvertNormalizedToWorld(wnX, wnZ, calibration)
+
     local closestPOIId
-    local minimalDistance = math.huge
+    local minimalDistanceSq = math.huge
 
     -- TODO: improve detection
     for i = 1, GetNumPOIs(zoneIndex) do
-        local nX, nY = GetPOIMapInfo(zoneIndex, i)
-        local dX, dY = (nX - wnX) / nX, (nY - wnY) / nY
-        local distance = math.sqrt(dX * dX + dY * dY)
+        local nX, nZ = GetPOIMapInfo(zoneIndex, i)
+        local poiwX, poiwZ = ImperialCartographer.Coordinates.ConvertNormalizedToWorld(nX, nZ, calibration)
 
-        if distance < minimalDistance then
+        local dX, dZ = wpwX - poiwX, wpwZ - poiwZ
+        local distanceSq = dX * dX + dZ * dZ
+
+        if distanceSq < minimalDistanceSq then
             closestPOIId = ImperialCartographer.GetPOIId(zoneIndex, i)
-            minimalDistance = distance
+            minimalDistanceSq = distanceSq
         end
     end
 
-    Log('Waypoint min error: %f', minimalDistance)
-    if minimalDistance > 0.1 then return end
+    if minimalDistanceSq > 4000 * 4000 then return end
+    Log('Waypoint -> POI distance: %d', math.sqrt(minimalDistanceSq) / 100)
 
-    local markType
     for type, marks in ipairs(self.marks) do
         for i, mark in ipairs(marks) do
             if self.markTags[type][i][1] == closestPOIId then
                 MARK_WITH_WAYPOINT = mark
-                markType = type
                 break
             end
         end
     end
 
-    if MARK_WITH_WAYPOINT then
-        addWaypointTexture(MARK_WITH_WAYPOINT)
+    if not MARK_WITH_WAYPOINT then return end
 
-        EM.UnregisterForEvent(EVENT_NAMESPACE .. 'Waypoint', EM.EVENT_AFTER_UPDATE)  -- TODO: get rid of workaround
-        EM.RegisterForEvent(EVENT_NAMESPACE .. 'Waypoint', EM.EVENT_AFTER_UPDATE, function()
-            IMP_CART_Waypoint:SetHidden(MARK_WITH_WAYPOINT:IsHidden())
-        end)
-    end
+    MARK_WITH_WAYPOINT:RemoveSystem(FILTER_BY_DISTANCE)
+    MARK_WITH_WAYPOINT:RemoveSystem(CHANGE_ALPHA_WITH_DISTANCE)
+
+    IMP_CART_WaypointTexture:SetParent(MARK_WITH_WAYPOINT.control)
+    IMP_CART_WaypointTexture:ClearAnchors()
+    IMP_CART_WaypointTexture:SetAnchor(BOTTOM, MARK_WITH_WAYPOINT.control, TOP, 0, 4)
+    IMP_CART_WaypointTexture:SetHidden(false)
+
+    MARK_WITH_WAYPOINT.control:SetClampedToScreen(true)
+    MARK_WITH_WAYPOINT.control:SetClampedToScreenInsets(-48, -48, 48, 48)
 end
 
 function MarksManager:RemoveExistingWaypointMarker()
     if not MARK_WITH_WAYPOINT then return end
 
-    IMP_CART_Waypoint:ClearAnchors()
-    IMP_CART_Waypoint:SetHidden(true)
+    IMP_CART_WaypointTexture:ClearAnchors()
+    IMP_CART_WaypointTexture:SetHidden(true)
 
-    MARK_WITH_WAYPOINT:SetClampedToScreen(false)
+    MARK_WITH_WAYPOINT.control:SetClampedToScreen(false)
 
-    EM.UnregisterForEvent(EVENT_NAMESPACE .. 'Waypoint', EM.EVENT_AFTER_UPDATE)
+    -- EM.UnregisterForEvent(EVENT_NAMESPACE .. 'Waypoint', EM.EVENT_AFTER_UPDATE)
 
-    table.insert(MARK_WITH_WAYPOINT.updateFunctions, 1, self.types[1].markerUpdateFunctions[1])
+    MARK_WITH_WAYPOINT:AddSystem(FILTER_BY_DISTANCE)
+    MARK_WITH_WAYPOINT:AddSystem(CHANGE_ALPHA_WITH_DISTANCE)
 
     MARK_WITH_WAYPOINT = nil
 end
@@ -179,9 +181,6 @@ function MarksManager:_turnOn(turnOn)
     end
 end
 
-local filterByDistance = LibImplex.Systems.NewFilterByDistanceSystem(2, 225)
-local changeAlphaWithDistance = LibImplex.Systems.NewChangeAlphaWithDistanceSystem(2, 1, 225, 0.2)
-
 function MarksManager:AddMarkType(updateFunc, showDistanceLabel, distanceFunc, reticleOverFunc, ...)
     local typeIndex = #self.types + 1
 
@@ -193,8 +192,8 @@ function MarksManager:AddMarkType(updateFunc, showDistanceLabel, distanceFunc, r
     }
 
     if distanceFunc then
-        table.insert(self.types[typeIndex].markerUpdateSystems, filterByDistance)
-        table.insert(self.types[typeIndex].markerUpdateSystems, changeAlphaWithDistance)
+        table.insert(self.types[typeIndex].markerUpdateSystems, FILTER_BY_DISTANCE)
+        table.insert(self.types[typeIndex].markerUpdateSystems, CHANGE_ALPHA_WITH_DISTANCE)
     end
 
     self.marks[typeIndex] = {}
