@@ -18,6 +18,7 @@ local CHANGE_ALPHA_WITH_DISTANCE = LibImplex.Systems.NewChangeAlphaWithDistanceS
 local MARK_WITH_WAYPOINT
 
 function MarksManager:SetWaypointAt(wnX, wnZ)
+    Log('SetWaypointAt')
     local zoneIndex = GetCurrentMapZoneIndex()
 
     local zoneId = GetZoneId(zoneIndex)
@@ -46,7 +47,7 @@ function MarksManager:SetWaypointAt(wnX, wnZ)
 
     for type, marks in ipairs(self.marks) do
         for i, mark in ipairs(marks) do
-            if self.markTags[type][i][1] == closestPOIId then
+            if self.markTags[type][i] == closestPOIId then
                 MARK_WITH_WAYPOINT = mark
                 break
             end
@@ -93,6 +94,7 @@ end
 
 function MarksManager:SetupWaypoint()
     ZO_PostHook(_G, 'PingMap', function(pinType, mapDisplayType, nX, nY)
+        Log('Ping at %.2f, %.2f', nX * 100, nY * 100)
         if pinType ~= MAP_PIN_TYPE_PLAYER_WAYPOINT then return end
 
         self:RemoveExistingWaypointMarker()
@@ -136,13 +138,22 @@ function MarksManager:Initialize(addon)
     self.marks = {}
     self.markTags = {}
 
+    self.markIndicies = {}
+    setmetatable(self.markIndicies, {__mode = 'k'})
+
     self.sv = addon.sv
     self.on = nil
 
     self:SetupWaypoint()
 
+    self:UpdatePOILabelFontSize()
+
     self:SetHideInCombat(self.sv.hideInCombat)
     self:_turnOn(self.sv.active)
+end
+
+function MarksManager:UpdatePOILabelFontSize()
+    ImperialCartographer_POILabel:GetNamedChild('POIName'):SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(self.sv.labelFontSize))
 end
 
 function MarksManager:SetActive(state)
@@ -181,14 +192,15 @@ function MarksManager:_turnOn(turnOn)
     end
 end
 
-function MarksManager:AddMarkType(updateFunc, showDistanceLabel, distanceFunc, reticleOverFunc, ...)
+function MarksManager:AddMarkType(updateFunc, showDistanceLabel, distanceFunc, reticleOverFunc, distanceLabelFontSize, ...)
     local typeIndex = #self.types + 1
 
     self.types[typeIndex] = {
         updateFunc = updateFunc,
         showDistanceLabel = showDistanceLabel,
         markerUpdateSystems = {...},
-        reticleOverSystem = LibImplex.Systems.OnReticleOver(reticleOverFunc),
+        reticleOverSystem = LibImplex.Systems.OnReticleOver(reticleOverFunc, ImperialCartographer_POILabel:GetNamedChild('POIName')),
+        distanceLabelFontSize = distanceLabelFontSize or 20,
     }
 
     if distanceFunc then
@@ -200,6 +212,10 @@ function MarksManager:AddMarkType(updateFunc, showDistanceLabel, distanceFunc, r
     self.markTags[typeIndex] = {}
 
     return typeIndex
+end
+
+function MarksManager:SetDistanceLabelFontSize(type, fontSize)
+    self.types[type].distanceLabelFontSize = fontSize
 end
 
 function MarksManager:AddMark(type, tag, position, texture, size, color)
@@ -216,6 +232,7 @@ function MarksManager:AddMark(type, tag, position, texture, size, color)
     if markTypeData.showDistanceLabel then
         mark:AddSystem(LibImplex.Systems.UpdateDistanceLabel)
         mark.distanceLabel:SetHidden(false)
+        mark.distanceLabel:SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(markTypeData.distanceLabelFontSize))
     end
 
     if markTypeData.reticleOverSystem then
@@ -230,7 +247,23 @@ function MarksManager:AddMark(type, tag, position, texture, size, color)
     self.marks[type][index] = mark
     self.markTags[type][index] = tag
 
+    self.markIndicies[mark] = {type, index}
+
     return mark, index
+end
+
+function MarksManager:GetMarkIndicies(mark)
+    return unpack(self.markIndicies[mark])
+end
+
+function MarksManager:GetMarkTag(mark)
+    local type, index = self:GetMarkIndicies(mark)
+    return self.markTags[type][index]
+end
+
+function MarksManager:SetTag(mark, tag)
+    local type, index = self:GetMarkIndicies(mark)
+    self.markTags[type][index] = tag
 end
 
 function MarksManager:RemoveMarks(type)

@@ -58,6 +58,20 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
         -- requiresReload = true,
     }
 
+    optionsData[#optionsData+1] = {
+		type = 'slider',
+		name = 'Mark name font size',
+		getFunc = function() return sv.labelFontSize end,
+		setFunc = function(value)
+            if value ~= sv.labelFontSize then
+                sv.labelFontSize = value
+                ImperialCartographer.MarksManager:UpdatePOILabelFontSize()
+            end
+        end,
+		min = 16,
+		max = 36,
+	}
+
     local defaultPOIsControls = {}
     optionsData[#optionsData+1] = {
         type = 'submenu',
@@ -88,26 +102,12 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
 		setFunc = function(value)
             if value ~= sv.defaultPois.fontSize then
                 sv.defaultPois.fontSize = value
-                ImperialCartographer.DefaultPOIs:TriggerFullUpdate()
+                ImperialCartographer.DefaultPOIs:SetDistanceLabelFontSize(value)
             end
         end,
 		min = 16,
 		max = 36,
 	}
-
-    -- defaultPOIsControls[#defaultPOIsControls+1] = {
-	-- 	type = 'slider',
-	-- 	name = 'POI name font size',
-	-- 	getFunc = function() return sv.defaultPois.labelFontSize end,
-	-- 	setFunc = function(value)
-    --         if value ~= sv.defaultPois.labelFontSize then
-    --             sv.defaultPois.labelFontSize = value
-    --             ImperialCartographer.DefaultPOIs:InitPOILabel()
-    --         end
-    --     end,
-	-- 	min = 16,
-	-- 	max = 36,
-	-- }
 
     -- defaultPOIsControls[#defaultPOIsControls+1] = {
 	-- 	type = 'slider',
@@ -235,6 +235,20 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
         requiresReload = true,
     }
 
+    questTrackerControls[#questTrackerControls+1] = {
+		type = 'slider',
+		name = 'Distance meter font size',
+		getFunc = function() return sv.questTracker.fontSize end,
+		setFunc = function(value)
+            if value ~= sv.questTracker.fontSize then
+                sv.questTracker.fontSize = value
+                IMP_CART_UpdateQuestTrackerDistanceLabelFontSize(value)
+            end
+        end,
+		min = 16,
+		max = 36,
+	}
+
     -- questTrackerControls[#questTrackerControls+1] = {
     --     type = 'colorpicker',
     --     name = 'Marker color',
@@ -272,18 +286,19 @@ If you see a POI in red, it means its coordinates have not been added yet. The p
 
     LAM:RegisterOptionControls(settingsName, optionsData)
 
-    CALLBACK_MANAGER:RegisterCallback('LAM-PanelOpened', function(panelOpened)
-        if panelOpened ~= panel then return end
-        IMP_CART_DiscoveredPOIs:SetHidden(false)
-    end)
+    -- TODO: FIX
+    -- CALLBACK_MANAGER:RegisterCallback('LAM-PanelOpened', function(panelOpened)
+    --     if panelOpened ~= panel then return end
+    --     IMP_CART_DiscoveredPOIs:SetHidden(false)
+    -- end)
 
-    CALLBACK_MANAGER:RegisterCallback('LAM-PanelClosed', function(panelOpened)
-        if panelOpened ~= panel then return end
+    -- CALLBACK_MANAGER:RegisterCallback('LAM-PanelClosed', function(panelOpened)
+    --     if panelOpened ~= panel then return end
 
-        if not ImperialCartographer.sv.pinned then
-            IMP_CART_DiscoveredPOIs:SetHidden(true)
-        end
-    end)
+    --     if not ImperialCartographer.sv.pinned then
+    --         IMP_CART_DiscoveredPOIs:SetHidden(true)
+    --     end
+    -- end)
 end
 
 ImperialCartographer.Settings = settings

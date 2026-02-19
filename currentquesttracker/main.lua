@@ -41,13 +41,15 @@ local function addMarkForQuestIndex(questIndex)
         local rwX, rwZ = ImperialCartographer.Coordinates.ConvertNormalizedToWorld(rnwX, rnwZ, calibration)
         local rwY = 0
 
+        -- local rwY = IMP_CART_GetApproximateYFromHarvest(rwX, rwZ)  -- TODO 
+
         local texture = ImperialCartographer.sv.questTracker.texture
         local size = ImperialCartographer.sv.defaultPois.markerSize
 
         local mark, markIndex = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_QUEST, data, {rwX, rwY, rwZ}, texture, size, color)
         -- mark.questIndex = questIndex
         markerToQuestIndex[mark] = questIndex
-        mark.distanceLabel:SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(ImperialCartographer.sv.defaultPois.fontSize or 20))
+        -- mark.distanceLabel:SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(ImperialCartographer.sv.defaultPois.fontSize or 20))
         mark.control:SetClampedToScreen(true)
         mark.control:SetClampedToScreenInsets(-24, -24, 24, 48)
         -- mark.insideCurrentMapWorld = data.insideCurrentMapWorld  -- TODO: is it possible to add zone name to offmap quest?
@@ -58,6 +60,7 @@ end
 local INITIALIZED = false  -- TODO: create dedicated class
 EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function()
     if not ImperialCartographer.sv.questTracker.enabled then return end
+    local sv = ImperialCartographer.sv.questTracker
 
     if not INITIALIZED then
         MARK_TYPE_QUEST = ImperialCartographer.MarksManager:AddMarkType(
@@ -65,6 +68,7 @@ EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function
             true,
             false,
             onReticleOver,
+            sv.fontSize,
             LibImplex.Systems.KeepOnPlayersHeight
         )
 
@@ -91,6 +95,11 @@ EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function
             CURRENT_QUEST_INDEX = questIndex
             ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_QUEST)
         end)
+
+        function IMP_CART_UpdateQuestTrackerDistanceLabelFontSize(value)
+            ImperialCartographer.MarksManager:SetDistanceLabelFontSize(MARK_TYPE_QUEST, value)
+            ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_QUEST)
+        end
 
         INITIALIZED = true
     end

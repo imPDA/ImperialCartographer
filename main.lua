@@ -13,6 +13,8 @@ local DEFAULT_SETTINGS = {
     pinned = false,
     hideInCombat = false,
     active = true,
+    labelFontSize = 24,
+    fontSize = 20,
     defaultPois = {
         markerSize = 36,
         markerColor = {1, 1, 1},
@@ -21,7 +23,6 @@ local DEFAULT_SETTINGS = {
         maxDistance = 23500,
         minAlpha = 1,
         maxAlpha = 0.2,
-        labelFontSize = 24,
     },
     questTracker = {
         enabled = false,
@@ -29,9 +30,13 @@ local DEFAULT_SETTINGS = {
         markerColor = {0, 1, 0},
         showOffmap = false,
         offmapMarkerColor = {1, 0, 0},
+        fontSize = 20,
     },
     undiscoveredPOIs = {
         enabled = false,
+    },
+    mapLocations = {
+        enabled = true,
     }
 }
 
@@ -50,6 +55,7 @@ function addon:OnLoad()
     self.MarksManager:Initialize(self)
     self.DefaultPOIs:Initialize(self)
     self.UndiscoveredPOIs:Initialize(self)
+    self.MapLocations:Initialize(self)
 
     SLASH_COMMANDS['/impcartgetclose'] = ImperialCartographer.UndiscoveredPOIs.GetCloseMark
 end

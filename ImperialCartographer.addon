@@ -1,12 +1,12 @@
 ## Title: |cAFD3FFImperial Cartographer|r
 ## Description: ~_~
 ## Author: |c7c42f2@impda|r
-## AddOnVersion: 18
+## AddOnVersion: 19
 ## APIVersion: 101048
 ## IsLibrary: false
 ## SavedVariables: ImperialCartographerSV ImperialCartographerData ImperialCartographerExport
 ## SavedVariables: ImperialCartographerCyrodiilSubzones 
-## DependsOn: LibImplex>=20
+## DependsOn: LibImplex>=23 LibSubzones>=1
 ## OptionalDependsOn: LoreBooks>=99
 ## PCDependsOn: LibAddonMenu-2.0>=41
 
@@ -18,14 +18,9 @@ settings.lua
 utils/coordinates.lua
 utils/calculations.lua
 
-defaultpois/main.lua
-defaultpois/getpoiid.lua
-defaultpois/defaultdata.lua
-defaultpois/controls.xml
-
-ui/templates.xml
-ui/main.lua
-ui/controls.xml
+; ui/templates.xml
+; ui/main.lua
+; ui/controls.xml
 
 undiscoveredpois/main.lua
 
@@ -48,8 +43,17 @@ currentquesttracker/main.lua
 
 manager.lua
 
+defaultpois/main.lua
+defaultpois/getpoiid.lua
+defaultpois/defaultdata.lua
+defaultpois/controls.xml
+
 bindings.lua
 bindings.xml
+
+; approximation/main.lua
+
+maplocations/main.lua
 
 ; This Add-on is not created by, affiliated with or sponsored by ZeniMax
 ; Media Inc. or its affiliates. The Elder Scrolls® and related logos are

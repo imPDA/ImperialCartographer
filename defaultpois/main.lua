@@ -3,52 +3,13 @@ local Vector = LibImplex.Vector
 local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_DEFAULT_POIS_MAIN_EVENT_NAMESPACE'
 
 local Log = ImperialCartographer_Logger()  -- TODO: hide if not loaded with debugging
+local MM = ImperialCartographer.MarksManager
 
 -- ----------------------------------------------------------------------------
 
 local MARK_TYPE_DEFAULT_POI
 
 local DefaultPOIs = {}
-
--- ----------------------------------------------------------------------------
-
-function DefaultPOIs:GetDistanceFunction()
-    local minDistance = self.sv.minDistance or 500
-    local maxDistance = self.sv.maxDistance or 23500
-
-    -- TODO: remove default as they must be added to default SV values
-    local minAlpha = self.sv.minAlpha or 1
-    local maxAlpha = self.sv.maxAlpha or 0.2
-
-    return function(marker, distance)
-        local distanceLabel = marker.distanceLabel
-
-        if distance > maxDistance or distance < minDistance then
-            marker:SetHidden(true)
-            if distanceLabel then distanceLabel:SetHidden(true) end
-            return true
-        end
-
-        local distanceSection = maxDistance - minDistance
-        local alphaSection = maxAlpha - minAlpha
-
-        local percent = (distance - minDistance) / distanceSection
-        local alpha = minAlpha + percent * alphaSection
-        marker:SetAlpha(alpha)
-    end
-end
-
-local markerToId = setmetatable({}, {__mode='k'})
-
-local function onReticleOver(marker)
-    local poiId = markerToId[marker]
-    if not poiId then return 'Unknown' end
-
-    local zoneIndex, poiIndex = GetPOIIndices(poiId)
-    local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, poiIndex)
-
-    return zo_strformat(SI_WORLD_MAP_LOCATION_NAME, objectiveName)
-end
 
 -- ----------------------------------------------------------------------------
 
@@ -62,15 +23,21 @@ function DefaultPOIs:Initialize(parent)
 
     self.data = ImperialCartographer.DefaultPOIsData
 
-    MARK_TYPE_DEFAULT_POI = ImperialCartographer.MarksManager:AddMarkType(
+    MARK_TYPE_DEFAULT_POI = MM:AddMarkType(
         function() self:Update() end,
         true,
         true,
-        onReticleOver
+        function(mark)
+            local poiId = MM:GetMarkTag(mark)
+            local objectiveName = GetPOIInfo(GetPOIIndices(poiId))
+
+            return zo_strformat(SI_WORLD_MAP_LOCATION_NAME, objectiveName)
+        end,
+        self.sv.fontSize
     )
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function()
-        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+        MM:UpdateMarks(MARK_TYPE_DEFAULT_POI)
     end)
 
     -- ZO_PreHook(_G, 'ZO_WorldMap_RefreshWayshrines', function()
@@ -93,7 +60,7 @@ function DefaultPOIs:Initialize(parent)
         if not isFreshlyDiscovered(zoneIndex, poiIndex) then return end
 
         Log('Updating markers because of %d', poiIndex)
-        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+        MM:UpdateMarks(MARK_TYPE_DEFAULT_POI)
     end)
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_FAST_TRAVEL_NETWORK_UPDATED, function(_, nodeIndex)
@@ -101,7 +68,7 @@ function DefaultPOIs:Initialize(parent)
         if not isFreshlyDiscovered(zoneIndex, poiIndex) then return end
 
         Log('Updating markers because of %d', poiIndex)
-        ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+        MM:UpdateMarks(MARK_TYPE_DEFAULT_POI)
     end)
 
     if not IsConsoleUI() then
@@ -110,21 +77,15 @@ function DefaultPOIs:Initialize(parent)
 
         for _, checkBox in ipairs(pinFilterCheckBoxes) do
             ZO_PostHook(checkBox, 'toggleFunction', function()
-                ImperialCartographer.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+                MM:UpdateMarks(MARK_TYPE_DEFAULT_POI)
             end)
         end
     end
-
-    self:InitPOILabel()
 end
 
-function DefaultPOIs:InitPOILabel()
-    ImperialCartographer_POILabel:GetNamedChild('POIName'):SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(self.sv.labelFontSize))
-end
-
-function DefaultPOIs:GetMarkerColorByPinType(pinType)
-    return self.sv.markerColor or {1, 1, 1}
-end
+-- function DefaultPOIs:GetMarkerColorByPinType(pinType)
+--     return self.sv.markerColor or {1, 1, 1}
+-- end
 
 function DefaultPOIs:GetMarkerSizeByPinType(pinType)
     return self.sv.markerSize or 36
@@ -192,14 +153,11 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
     local wX, wY, wZ = ImperialCartographer.Calculations.ConvertWtoRW(zoneId, unpack(poiData))
 
     local size = self:GetMarkerSizeByPinType(pinType)
-    local color = self:GetMarkerColorByPinType(pinType)
+    -- local color = self:GetMarkerColorByPinType(pinType)
 
-    local mark, index = ImperialCartographer.MarksManager:AddMark(MARK_TYPE_DEFAULT_POI, {poiId}, Vector({wX, wY, wZ}), texture, size, color)
-    -- mark.poiId = poiId  -- extra field TODO: avoid
+    local tag = poiId
 
-    markerToId[mark] = poiId
-    mark.distanceLabel:SetFont(('$(BOLD_FONT)|$(KB_%d)|soft-shadow-thick'):format(self.sv.fontSize or 20))
-
+    MM:AddMark(MARK_TYPE_DEFAULT_POI, tag, Vector({wX, wY, wZ}), texture, size)
 
     Log('%d - poiId: %d - %s - OK', poiIndex, poiId, objectiveName)
 end
@@ -222,10 +180,15 @@ function DefaultPOIs:Update()
         self:AddPOI(zoneIndex, i)
     end
 
-    IMP_CART_UpdateScrollListControl()
+    -- IMP_CART_UpdateScrollListControl()  -- TODO: FIX
 end
 
 function DefaultPOIs:TriggerFullUpdate()
+    self.parent.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+end
+
+function DefaultPOIs:SetDistanceLabelFontSize(fontSize)
+    self.parent.MarksManager:SetDistanceLabelFontSize(MARK_TYPE_DEFAULT_POI, fontSize)
     self.parent.MarksManager:UpdateMarks(MARK_TYPE_DEFAULT_POI)
 end
 

@@ -36,7 +36,7 @@ function UndiscoveredPOIs:Initialize(addon)
         true,
         keepOnPlayersHeight,
         onReticleOver,
-        nil
+        ImperialCartographer.sv.defaultPois.fontSize -- TODO: change in the future
     )
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_PLAYER_ACTIVATED, function()

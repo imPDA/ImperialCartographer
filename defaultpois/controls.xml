@@ -14,10 +14,10 @@
             <Dimensions x="32" y="32" />
         </Texture>
         
-        <TopLevelControl name="ImperialCartographer_POILabel" hidden="true">
+        <TopLevelControl name="ImperialCartographer_POILabel">
             <Anchor point="CENTER" />
             <Controls>
-                <Label name="$(parent)POIName" font="ZoFontWinH2" text="-">
+                <Label name="$(parent)POIName" font="ZoFontWinH2" text="-" hidden="true">
                     <Anchor point="LEFT" relativePoint="CENTER" offsetX="48" />
                 </Label>
             </Controls>

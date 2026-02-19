@@ -19,13 +19,17 @@ end
 local db = AutoTable()
 
 local function fillPOIDatabase()
-    for i = 1, 3000 do  -- ~2800 in U45
+    local maxId = 0
+    for i = 1, 3600 do  -- ~2918 in U48
         local zoneIndex, poiIndex = GetPOIIndices(i)
 
         if zoneIndex ~= 1 then
             db[zoneIndex][poiIndex] = i
+            maxId = i
         end
     end
+
+    -- df('Max POI id currently is %d', maxId)
 end
 
 local function getPOIId(zoneIndex, poiIndex)
