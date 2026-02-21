@@ -148,7 +148,7 @@ function IMP_ImperialCartographer_GetMapLocations()
         strings[#strings+1] = ('["%s"] = {%d, %f, %f, "%s", "%s", %.2f, %d, %.2f}'):format(hash, i, nX, nZ, header, icon, zo_roundToZero(rwX, 0.01), 0, zo_roundToZero(rwZ, 0.01))
     end
 
-    d(table.concat(strings, ',\n'))
+    -- d(table.concat(strings, ',\n'))
     return locations
 end
 --]]

@@ -1,3 +1,12 @@
+V. 20
+- Fixed bug when killing the world boss not triggered marker change. Logic was simplified, so any change now should happen faster and more reliable.
+- Removed debug messages from recent update
+
+V. 19
+- Added new type of marks - map locations (bank, stablemaster, etc., for Cyrodiil bases only for testing)
+- Added LibSubzones
+- Some settings returned after fixes implemented
+
 V. 18
 - Fix for Waypoints
 - Some settings disabled for further investigation

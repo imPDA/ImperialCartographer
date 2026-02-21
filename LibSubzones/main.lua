@@ -4,9 +4,9 @@ local subzones
 
 local function onZoneChanged(_, zoneName, subZoneName, newSubzone, zoneId, subZoneId)
     if subZoneName == '' or subZoneId == 0 then return end
-    df('[%d] %s', subZoneId, subZoneName)
+    -- df('[%d] %s', subZoneId, subZoneName)
     subzones[subZoneName] = subZoneId
-    d(subzones)
+    -- d(subzones)
 end
 
 EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_ADD_ON_LOADED, function(_, addonName)

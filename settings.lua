@@ -9,7 +9,7 @@ function settings:Initialize(settingsName, settingsDisplayName, sv)
         name = settingsDisplayName,
         author = '@impda',
         website = 'https://www.esoui.com/downloads/info4112-ImperialCartographer.html',
-        version = 'v16',
+        version = 'v20',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)

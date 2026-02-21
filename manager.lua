@@ -46,7 +46,7 @@ function MarksManager:SetWaypointAt(wnX, wnZ)
     Log('Waypoint -> POI distance: %d', math.sqrt(minimalDistanceSq) / 100)
 
     for type, marks in ipairs(self.marks) do
-        for i, mark in ipairs(marks) do
+        for i, mark in pairs(marks) do
             if self.markTags[type][i] == closestPOIId then
                 MARK_WITH_WAYPOINT = mark
                 break

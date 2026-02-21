@@ -11,6 +11,8 @@ local MARK_TYPE_DEFAULT_POI
 
 local DefaultPOIs = {}
 
+local poiIndexToMark = {}
+
 -- ----------------------------------------------------------------------------
 
 function DefaultPOIs:Initialize(parent)
@@ -40,35 +42,21 @@ function DefaultPOIs:Initialize(parent)
         MM:UpdateMarks(MARK_TYPE_DEFAULT_POI)
     end)
 
-    -- ZO_PreHook(_G, 'ZO_WorldMap_RefreshWayshrines', function()
-    --     Log('`ZO_WorldMap_RefreshWayshrines` prehook')
-    -- end)
-
-    -- ZO_PostHook(_G, 'ZO_WorldMap_RefreshWayshrines', function()
-    --     Log('`ZO_WorldMap_RefreshWayshrines` posthook')
-    -- end)
-
-    self.discovered = {}
-    local function isFreshlyDiscovered(zoneIndex, poiIndex)
+    local function editOne(zoneIndex, poiIndex)
         local poiNX, poiNZ, pinType, texture, isShownInCurrentMap, linkedCollectibleIsLocked, isDiscovered = GetPOIMapInfo(zoneIndex, poiIndex)
-        Log('%s vs %s', (self.discovered[poiIndex]), tostring(isDiscovered))
-        if self.discovered[poiIndex] ~= isDiscovered then return true end
+
+        local mark = poiIndexToMark[poiIndex]
+        mark:SetTexture(texture)
     end
 
-    -- TODO: too heavy solution, refactor
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_POI_UPDATED, function(_, zoneIndex, poiIndex)
-        if not isFreshlyDiscovered(zoneIndex, poiIndex) then return end
-
-        Log('Updating markers because of %d', poiIndex)
-        MM:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+        Log('EVENT_POI_UPDATED: zoneIndex: %d, poiIndex: %d', zoneIndex, poiIndex)
+        editOne(zoneIndex, poiIndex)
     end)
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_FAST_TRAVEL_NETWORK_UPDATED, function(_, nodeIndex)
         local zoneIndex, poiIndex = GetFastTravelNodePOIIndicies(nodeIndex)
-        if not isFreshlyDiscovered(zoneIndex, poiIndex) then return end
-
-        Log('Updating markers because of %d', poiIndex)
-        MM:UpdateMarks(MARK_TYPE_DEFAULT_POI)
+        editOne(zoneIndex, poiIndex)
     end)
 
     if not IsConsoleUI() then
@@ -145,7 +133,6 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
     if not poiData then return end
 
     local poiNX, poiNZ, pinType, texture, isShownInCurrentMap, linkedCollectibleIsLocked, isDiscovered = GetPOIMapInfo(zoneIndex, poiIndex)
-    self.discovered[poiIndex] = isDiscovered
 
     if not self.passesFilters(zoneIndex, poiIndex) then return Log('%d - poiId: %d - %s - Filtered', poiIndex, poiId, objectiveName) end
 
@@ -157,7 +144,8 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
 
     local tag = poiId
 
-    MM:AddMark(MARK_TYPE_DEFAULT_POI, tag, Vector({wX, wY, wZ}), texture, size)
+    local mark = MM:AddMark(MARK_TYPE_DEFAULT_POI, tag, Vector({wX, wY, wZ}), texture, size)
+    poiIndexToMark[poiIndex] = mark
 
     Log('%d - poiId: %d - %s - OK', poiIndex, poiId, objectiveName)
 end
@@ -165,16 +153,16 @@ end
 function DefaultPOIs:Update()
     ImperialCartographer.Calculations.ClearCalibrations()
 
+    for k in pairs(poiIndexToMark) do
+        poiIndexToMark[k] = nil
+    end
+
     local zoneIndex = GetUnitZoneIndex('player')
     if not zoneIndex then Log('`zoneIndex` was not received for player') return end
 
     self.passesFilters = getFilters()
 
     Log('Loaded in [index:%d, id:%d] %s', zoneIndex, GetZoneId(zoneIndex), GetZoneNameByIndex(zoneIndex))
-
-    for i, _ in pairs(self.discovered) do
-        self.discovered[i] = false
-    end
 
     for i = 1, GetNumPOIs(zoneIndex) do
         self:AddPOI(zoneIndex, i)
