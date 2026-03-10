@@ -46,7 +46,7 @@ function DefaultPOIs:Initialize(parent)
         local poiNX, poiNZ, pinType, texture, isShownInCurrentMap, linkedCollectibleIsLocked, isDiscovered = GetPOIMapInfo(zoneIndex, poiIndex)
 
         local mark = poiIndexToMark[poiIndex]
-        mark:SetTexture(texture)
+        if mark then mark:SetTexture(texture) end
     end
 
     EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_POI_UPDATED, function(_, zoneIndex, poiIndex)

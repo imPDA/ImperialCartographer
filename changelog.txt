@@ -1,3 +1,7 @@
+V. 21
+- Fixed bug `defaultpois/main.lua:49: attempt to index a nil value`
+- API version bump
+
 V. 20
 - Fixed bug when killing the world boss not triggered marker change. Logic was simplified, so any change now should happen faster and more reliable.
 - Removed debug messages from recent update
