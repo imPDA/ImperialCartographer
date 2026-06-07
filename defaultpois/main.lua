@@ -5,6 +5,9 @@ local EVENT_NAMESPACE = 'IMPERIAL_CARTOGRAPHER_DEFAULT_POIS_MAIN_EVENT_NAMESPACE
 local Log = ImperialCartographer_Logger()  -- TODO: hide if not loaded with debugging
 local MM = ImperialCartographer.MarksManager
 
+local ConvertWtoRW = ImperialCartographer.Calculations.ConvertWtoRW
+local ClearCalibrations = ImperialCartographer.Calculations.ClearCalibrations
+
 -- ----------------------------------------------------------------------------
 
 local MARK_TYPE_DEFAULT_POI
@@ -59,6 +62,10 @@ function DefaultPOIs:Initialize(parent)
         editOne(zoneIndex, poiIndex)
     end)
 
+    EVENT_MANAGER:RegisterForEvent(EVENT_NAMESPACE, EVENT_SKYSHARDS_UPDATED, function(_)
+        MM:UpdateMarks(MARK_TYPE_DEFAULT_POI)  -- TODO: how to update skyshards only?
+    end)
+
     if not IsConsoleUI() then
         local currentPanel = WORLD_MAP_FILTERS.currentPanel
         local pinFilterCheckBoxes = currentPanel.pinFilterCheckBoxes
@@ -75,6 +82,7 @@ end
 --     return self.sv.markerColor or {1, 1, 1}
 -- end
 
+-- TODO: BY PIN TYPE?
 function DefaultPOIs:GetMarkerSizeByPinType(pinType)
     return self.sv.markerSize or 36
 end
@@ -137,7 +145,7 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
     if not self.passesFilters(zoneIndex, poiIndex) then return Log('%d - poiId: %d - %s - Filtered', poiIndex, poiId, objectiveName) end
 
     local zoneId = GetZoneId(zoneIndex)
-    local wX, wY, wZ = ImperialCartographer.Calculations.ConvertWtoRW(zoneId, unpack(poiData))
+    local wX, wY, wZ = ConvertWtoRW(zoneId, unpack(poiData))
 
     local size = self:GetMarkerSizeByPinType(pinType)
     -- local color = self:GetMarkerColorByPinType(pinType)
@@ -150,8 +158,28 @@ function DefaultPOIs:AddPOI(zoneIndex, poiIndex)
     Log('%d - poiId: %d - %s - OK', poiIndex, poiId, objectiveName)
 end
 
+function DefaultPOIs:AddSkyshard(skyshardId)
+    local skyshardZoneId, wX, wY, wZ = GetWorldPositionForSkyshardId(skyshardId)  -- rw or just w? looks like rw
+    local zoneId = skyshardZoneId  -- TODO: can it differ?
+
+    local rwX, rwY, rwZ = ConvertWtoRW(zoneId, wX, wY, wZ)
+
+    local size = self:GetMarkerSizeByPinType()
+
+    local tag = skyshardId
+    local texture
+    local status = GetSkyshardDiscoveryStatus(skyshardId)
+    if status == SKYSHARD_DISCOVERY_STATUS_ACQUIRED then
+        texture = 'EsoUI/Art/MapPins/skyshard_complete.dds'
+    else  -- SKYSHARD_DISCOVERY_STATUS_UNDISCOVERED | SKYSHARD_DISCOVERY_STATUS_DISCOVERED
+        texture = 'EsoUI/Art/MapPins/skyshard_seen.dds'
+    end
+
+    local mark = MM:AddMark(MARK_TYPE_DEFAULT_POI, tag, Vector({rwX, rwY, rwZ}), texture, size)
+end
+
 function DefaultPOIs:Update()
-    ImperialCartographer.Calculations.ClearCalibrations()
+    ClearCalibrations()
 
     for k in pairs(poiIndexToMark) do
         poiIndexToMark[k] = nil
@@ -168,7 +196,43 @@ function DefaultPOIs:Update()
         self:AddPOI(zoneIndex, i)
     end
 
+    self:AddSkyshards()
+
     -- IMP_CART_UpdateScrollListControl()  -- TODO: FIX
+end
+
+local SKYSHARDS = {}
+do
+    for s = 1, GetNumSkyshards() do
+        local skyshardId = GetSkyshardId(s)
+        local zoneId = GetWorldPositionForSkyshardId(skyshardId)
+
+        local skyshards = SKYSHARDS[zoneId] or {}
+        skyshards[#skyshards+1] = skyshardId
+        SKYSHARDS[zoneId] = skyshards
+
+        if not SKYSHARDS[zoneId] then
+            SKYSHARDS[zoneId] = {}
+        end
+        table.insert(SKYSHARDS[zoneId], skyshardId)
+    end
+end
+
+function DefaultPOIs:AddSkyshards()
+    local zoneId = GetUnitRawWorldPosition('player')
+
+    local skyshards = SKYSHARDS[zoneId]
+    if not skyshards or #skyshards < 1 then return end
+
+    for s = 1, #skyshards do
+        local skyshardId = skyshards[s]
+
+        local skyshardZoneId, wX, wY, wZ = GetWorldPositionForSkyshardId(skyshardId)  -- rw or just w? looks like rw
+        local status = GetSkyshardDiscoveryStatus(skyshardId)
+        if status ~= SKYSHARD_DISCOVERY_STATUS_ACQUIRED and skyshardZoneId == zoneId then
+            self:AddSkyshard(skyshardId)
+        end
+    end
 end
 
 function DefaultPOIs:TriggerFullUpdate()

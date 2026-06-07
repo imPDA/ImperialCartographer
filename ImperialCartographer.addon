@@ -1,8 +1,8 @@
 ## Title: |cAFD3FFImperial Cartographer|r
 ## Description: ~_~
 ## Author: |c7c42f2@impda|r
-## AddOnVersion: 21
-## APIVersion: 101049
+## AddOnVersion: 22
+## APIVersion: 101050
 ## IsLibrary: false
 ## SavedVariables: ImperialCartographerSV ImperialCartographerData ImperialCartographerExport
 ## SavedVariables: ImperialCartographerCyrodiilSubzones 
@@ -27,9 +27,6 @@ undiscoveredpois/main.lua
 currentquesttracker/main.lua
 
 ; lorebooks/main.lua
-
-; skyshards/controls.xml
-; skyshards/main.lua
 
 ; defaultpois/manipulations/updatepoint.lua
 ; defaultpois/manipulations/bindings.lua

@@ -1,3 +1,6 @@
+V. 22
+- Skyshards added to default POIs with same behavior
+
 V. 21
 - Fixed bug `defaultpois/main.lua:49: attempt to index a nil value`
 - API version bump

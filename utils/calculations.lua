@@ -229,10 +229,10 @@ local function getNWToRNWConversionFunctions(zoneId, rwX, rwY, rwZ)
     return linX, linZ
 end
 
-local CALIBRATIONS
+local CALIBRATIONS = {}
 
 local function clearCalibrations()
-    CALIBRATIONS = {}
+    ZO_ClearTable(CALIBRATIONS)
 end
 
 local function getCalibrations(zoneId)
